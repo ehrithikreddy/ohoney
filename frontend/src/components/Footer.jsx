@@ -6,7 +6,7 @@ export default function Footer() {
       background:'var(--forest)', color:'white',
       padding:'48px 0 24px'
     }}>
-      <div className="container">
+      <div className="container foot-grid">
         <div style={{display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', gap:40, marginBottom:40}}>
           <div>
             <div style={{fontFamily:'Playfair Display,serif', fontWeight:800, fontSize:'1.5rem', marginBottom:12}}>🍯 ohoney</div>

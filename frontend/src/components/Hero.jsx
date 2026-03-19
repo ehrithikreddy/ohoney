@@ -25,7 +25,7 @@ export default function Hero() {
         background:'rgba(82,121,111,0.08)', bottom:50, left:-60, zIndex:0
       }}/>
 
-      <div className="container" style={{
+      <div className="container hero-grid" style={{
         display: 'grid', gridTemplateColumns: '1fr 1fr',
         gap: '60px', alignItems: 'center', position:'relative', zIndex:1
       }}>
@@ -57,7 +57,7 @@ export default function Hero() {
             Sustainable apiaries, transparent sourcing, zero compromises.
           </motion.p>
 
-          <motion.div {...fadeUp(0.5)} style={{ display:'flex', gap:16 }}>
+          <motion.div {...fadeUp(0.5)} className="hero-actions" style={{ display:'flex', gap:16 }}>
             <motion.a
               href="#products"
               whileHover={{ scale: 1.04, boxShadow:'0 8px 24px rgba(245,166,35,0.45)' }}
@@ -85,7 +85,7 @@ export default function Hero() {
             </motion.a>
           </motion.div>
 
-          <motion.div {...fadeUp(0.65)} style={{
+          <motion.div {...fadeUp(0.65)} className="hero-stats" style={{
             display:'flex', gap:32, marginTop:48
           }}>
             {[['500+','Happy customers'],['8+','Honey varieties'],['100%','Natural & raw']].map(([num, label]) => (

@@ -11,7 +11,7 @@ const features = [
 export default function Features() {
   return (
     <section style={{ padding:'64px 0', background:'var(--cream)' }}>
-      <div className="container" style={{
+      <div className="container features-grid" style={{
         display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:24
       }}>
         {features.map((f, i) => (

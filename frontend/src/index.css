@@ -30,3 +30,61 @@ h1, h2, h3 {
 }
 
 .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+
+  /* Hero: stack into single column */
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+    text-align: center;
+    gap: 40px !important;
+  }
+
+  .hero-actions {
+    justify-content: center !important;
+  }
+
+  .hero-stats {
+    justify-content: center !important;
+  }
+
+  .hero-art {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Features: 2 columns on mobile */
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Products: 1 column on mobile */
+  .products-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Footer: single column */
+  .foot-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+
+  /* Hide desktop nav links */
+  .nav-links {
+    display: none !important;
+  }
+
+  /* Show hamburger */
+  .nav-hamburger {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Features: 1 column on very small phones */
+  .features-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
