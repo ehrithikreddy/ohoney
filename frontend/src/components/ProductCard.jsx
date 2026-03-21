@@ -1,10 +1,12 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart()
-  const { title, desc, price, tag, img } = product
+  const navigate = useNavigate()
+  const { title, shortDesc, price, originalPrice, tag, img } = product
 
   const tagColors = {
     'Best seller': { bg:'#fff3cd', color:'#856404' },
@@ -25,8 +27,9 @@ export default function ProductCard({ product }) {
         background:'var(--white)', borderRadius:'var(--radius)',
         overflow:'hidden', boxShadow:'var(--shadow)',
         display:'flex', flexDirection:'column',
-        transition:'box-shadow 0.2s'
+        cursor:'pointer'
       }}
+      onClick={() => navigate(`/product/${product.id}`)}
     >
       <div style={{ position:'relative', overflow:'hidden', height:200 }}>
         <motion.img
@@ -45,24 +48,27 @@ export default function ProductCard({ product }) {
       </div>
       <div style={{ padding:'20px', flex:1, display:'flex', flexDirection:'column', gap:8 }}>
         <div style={{ fontWeight:700, fontSize:'1rem', color:'var(--text)' }}>{title}</div>
-        <div style={{ color:'var(--muted)', fontSize:'0.87rem', lineHeight:1.5, flex:1 }}>{desc}</div>
+        <div style={{ color:'var(--muted)', fontSize:'0.87rem', lineHeight:1.5, flex:1 }}>{shortDesc}</div>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:12 }}>
-          <span style={{ fontFamily:'Playfair Display,serif', fontWeight:800, fontSize:'1.3rem', color:'var(--forest)' }}>{price}</span>
-          <motion.button
-            whileHover={{ scale:1.06, background:'var(--honey-dark)' }}
-            whileTap={{ scale:0.94 }}
-            onClick={() => addItem(product)}
-            style={{
-              background:'var(--honey)', color:'white',
-              border:'none', borderRadius:50,
-              padding:'8px 20px', fontWeight:700,
-              cursor:'pointer', fontSize:'0.88rem',
-              transition:'background 0.2s'
-            }}
-          >
-            Add to Cart
-          </motion.button>
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <span style={{ fontFamily:'Playfair Display,serif', fontWeight:800, fontSize:'1.3rem', color:'var(--forest)' }}>{price}</span>
+            <span style={{ fontSize:'0.85rem', color:'var(--muted)', textDecoration:'line-through' }}>{originalPrice}</span>
+          </div>
         </div>
+        <motion.button
+          whileHover={{ scale:1.04, background:'var(--honey-dark)' }}
+          whileTap={{ scale:0.96 }}
+          onClick={(e) => { e.stopPropagation(); addItem(product) }}
+          style={{
+            background:'var(--honey)', color:'white',
+            border:'none', borderRadius:50,
+            padding:'10px 20px', fontWeight:700,
+            cursor:'pointer', fontSize:'0.88rem',
+            marginTop:8, transition:'background 0.2s'
+          }}
+        >
+          Add to Cart 🍯
+        </motion.button>
       </div>
     </motion.article>
   )
