@@ -2,9 +2,11 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiX, FiMinus, FiPlus, FiTrash2 } from 'react-icons/fi'
 import { useCart } from '../context/CartContext'
+import { useNavigate } from 'react-router-dom'
 
 export default function CartDrawer() {
   const { open, setOpen, items, removeItem, updateQty, total } = useCart()
+  const navigate = useNavigate()
 
   return (
     <AnimatePresence>
@@ -19,6 +21,7 @@ export default function CartDrawer() {
               zIndex:200, backdropFilter:'blur(4px)'
             }}
           />
+
           {/* Drawer */}
           <motion.aside
             initial={{ x:'100%' }} animate={{ x:0 }} exit={{ x:'100%' }}
@@ -31,12 +34,14 @@ export default function CartDrawer() {
               display:'flex', flexDirection:'column'
             }}
           >
+            {/* Header */}
             <div style={{
               padding:'24px', borderBottom:'1px solid #f0f0f0',
               display:'flex', justifyContent:'space-between', alignItems:'center'
             }}>
               <h2 style={{fontSize:'1.3rem'}}>Your Cart 🍯</h2>
-              <motion.button whileHover={{scale:1.1}} whileTap={{scale:0.9}}
+              <motion.button
+                whileHover={{scale:1.1}} whileTap={{scale:0.9}}
                 onClick={() => setOpen(false)}
                 style={{background:'none', border:'none', cursor:'pointer', padding:8}}
               >
@@ -44,6 +49,7 @@ export default function CartDrawer() {
               </motion.button>
             </div>
 
+            {/* Items */}
             <div style={{ flex:1, overflowY:'auto', padding:'16px 24px' }}>
               {items.length === 0 ? (
                 <div style={{textAlign:'center', color:'var(--muted)', marginTop:60}}>
@@ -86,6 +92,7 @@ export default function CartDrawer() {
               ))}
             </div>
 
+            {/* Footer */}
             {items.length > 0 && (
               <div style={{padding:'20px 24px', borderTop:'1px solid #f0f0f0'}}>
                 <div style={{display:'flex', justifyContent:'space-between', marginBottom:16}}>
@@ -95,6 +102,7 @@ export default function CartDrawer() {
                 <motion.button
                   whileHover={{scale:1.02, boxShadow:'0 8px 24px rgba(245,166,35,0.4)'}}
                   whileTap={{scale:0.98}}
+                  onClick={() => { setOpen(false); navigate('/checkout') }}
                   style={{
                     width:'100%', background:'var(--honey)', color:'white',
                     border:'none', borderRadius:50, padding:'14px',

@@ -6,6 +6,7 @@ import CartDrawer from './components/CartDrawer'
 import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 import AboutPage from './pages/AboutPage'
+import CheckoutPage from './pages/CheckoutPage'
 import './App.css'
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
         </Routes>
         <CartDrawer />
       </CartProvider>
