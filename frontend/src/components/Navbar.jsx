@@ -22,6 +22,8 @@ export default function Navbar() {
     setMenuOpen(false)
     if (link === 'About') navigate('/about')
     else if (link === 'Products') navigate('/#products')
+    else if (link === 'Contact') navigate('/contact')
+    else if (link === 'Wholesale') navigate('/contact')
   }
 
   return (
@@ -58,8 +60,7 @@ export default function Navbar() {
             {links.map(link => (
               <motion.a
                 key={link}
-                href={link === 'Products' ? '/#products' : link === 'About' ? undefined : `#${link.toLowerCase()}`}
-                onClick={link === 'About' ? () => navigate('/about') : undefined}
+                onClick={() => handleLinkClick(link)}
                 whileHover={{ color: 'var(--honey-dark)' }}
                 style={{
                   textDecoration: 'none', color: 'var(--text)',

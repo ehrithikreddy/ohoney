@@ -116,3 +116,17 @@ h1, h2, h3 {
     grid-template-columns: 1fr !important;
   }
 }
+
+@media (max-width: 768px) {
+  .contact-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .contact-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wholesale-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

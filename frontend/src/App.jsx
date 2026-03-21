@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 import AboutPage from './pages/AboutPage'
 import CheckoutPage from './pages/CheckoutPage'
+import ContactPage from './pages/ContactPage'
 import './App.css'
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Routes>
         <CartDrawer />
       </CartProvider>
