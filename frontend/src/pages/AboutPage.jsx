@@ -27,9 +27,9 @@ const values = [
 ]
 
 const team = [
-  { name: 'Ravi Kumar', role: 'Founder & Head Beekeeper', emoji: '👨‍🌾', desc: 'Third-generation beekeeper from the Nilgiri Hills. Ravi taught us everything we know about ethical honey harvesting.' },
-  { name: 'Priya Reddy', role: 'Co-founder & Operations', emoji: '👩‍💼', desc: 'Manages sourcing, quality control and ensures every jar that leaves our facility meets the ohoney standard.' },
-  { name: 'Arjun Nair', role: 'Apiary Partner, Kerala', emoji: '🧑‍🌾', desc: 'Our Western Ghats partner with 12 years of experience. Responsible for our award-winning Forest Honey.' },
+  { name: 'Jaya Prakash Reddy', role: 'Founder & Chief Of Executive Operations', emoji: '👨‍🌾', desc: 'Third-generation beekeeper from the Nilgiri Hills. Ravi taught us everything we know about ethical honey harvesting.' },
+  { name: 'Athul Bhai', role: 'Co-founder & Operations', emoji: '👩‍💼', desc: 'Manages sourcing, quality control and ensures every jar that leaves our facility meets the ohoney standard.' },
+  { name: 'Radha Lakshmi', role: 'Apiary Partner, Kerala', emoji: '🧑‍🌾', desc: 'Our Western Ghats partner with 12 years of experience. Responsible for our award-winning Forest Honey.' },
 ]
 
 export default function AboutPage() {
