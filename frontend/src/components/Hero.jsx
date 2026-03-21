@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 40 },
@@ -8,6 +9,8 @@ const fadeUp = (delay = 0) => ({
 })
 
 export default function Hero() {
+  const navigate = useNavigate()
+
   return (
     <section style={{
       minHeight: '100vh',
@@ -72,13 +75,13 @@ export default function Hero() {
               Shop Now →
             </motion.a>
             <motion.a
-              href="#about"
+              onClick={() => navigate('/about')}
               whileHover={{ background: 'rgba(245,166,35,0.1)' }}
               style={{
                 border: '2px solid var(--honey)', color: 'var(--honey-dark)',
                 padding: '14px 32px', borderRadius: '50px',
                 fontWeight: 600, textDecoration:'none', fontSize:'1rem',
-                display:'inline-block', transition:'background 0.2s'
+                display:'inline-block', transition:'background 0.2s', cursor:'pointer'
               }}
             >
               Our Story
