@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiShoppingCart, FiMenu, FiX } from 'react-icons/fi'
 import { useCart } from '../context/CartContext'
+import { useNavigate } from 'react-router-dom'
 
 export default function Navbar() {
   const { count, setOpen } = useCart()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -15,6 +17,12 @@ export default function Navbar() {
   }, [])
 
   const links = ['Products', 'About', 'Wholesale', 'Contact']
+
+  const handleLinkClick = (link) => {
+    setMenuOpen(false)
+    if (link === 'About') navigate('/about')
+    else if (link === 'Products') navigate('/#products')
+  }
 
   return (
     <>
@@ -32,13 +40,16 @@ export default function Navbar() {
         }}
       >
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          
+
           {/* Logo */}
-          <motion.div whileHover={{ scale: 1.05 }} style={{
-            fontFamily: 'Playfair Display, serif',
-            fontWeight: 800, fontSize: '1.6rem',
-            color: 'var(--forest)', cursor: 'pointer'
-          }}>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            onClick={() => navigate('/')}
+            style={{
+              fontFamily: 'Playfair Display, serif',
+              fontWeight: 800, fontSize: '1.6rem',
+              color: 'var(--forest)', cursor: 'pointer'
+            }}>
             🍯 ohoney
           </motion.div>
 
@@ -47,11 +58,12 @@ export default function Navbar() {
             {links.map(link => (
               <motion.a
                 key={link}
-                href={`#${link.toLowerCase()}`}
+                href={link === 'Products' ? '/#products' : link === 'About' ? undefined : `#${link.toLowerCase()}`}
+                onClick={link === 'About' ? () => navigate('/about') : undefined}
                 whileHover={{ color: 'var(--honey-dark)' }}
                 style={{
                   textDecoration: 'none', color: 'var(--text)',
-                  fontWeight: 500, fontSize: '0.95rem',
+                  fontWeight: 500, fontSize: '0.95rem', cursor: 'pointer'
                 }}
               >
                 {link}
@@ -84,7 +96,7 @@ export default function Navbar() {
 
           {/* Mobile Right Side */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {/* Cart icon always visible on mobile */}
+            {/* Cart icon on mobile */}
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setOpen(true)}
@@ -148,8 +160,7 @@ export default function Navbar() {
             {links.map((link, i) => (
               <motion.a
                 key={link}
-                href={`#${link.toLowerCase()}`}
-                onClick={() => setMenuOpen(false)}
+                onClick={() => handleLinkClick(link)}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.06 }}
@@ -157,7 +168,7 @@ export default function Navbar() {
                   display: 'block', padding: '14px 0',
                   borderBottom: '1px solid rgba(0,0,0,0.06)',
                   textDecoration: 'none', color: 'var(--text)',
-                  fontWeight: 600, fontSize: '1.05rem'
+                  fontWeight: 600, fontSize: '1.05rem', cursor: 'pointer'
                 }}
               >
                 {link}

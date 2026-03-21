@@ -96,3 +96,17 @@ h1, h2, h3 {
   }
 }
 
+@media (max-width: 768px) {
+  .about-two-col {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  .values-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .team-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
