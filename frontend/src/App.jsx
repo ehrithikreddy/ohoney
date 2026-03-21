@@ -3,11 +3,13 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { CartProvider } from './context/CartContext'
 import Navbar from './components/Navbar'
 import CartDrawer from './components/CartDrawer'
+import WhatsAppButton from './components/WhatsAppButton'
 import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 import AboutPage from './pages/AboutPage'
 import CheckoutPage from './pages/CheckoutPage'
 import ContactPage from './pages/ContactPage'
+import NotFoundPage from './pages/NotFoundPage'
 import './App.css'
 
 export default function App() {
@@ -21,8 +23,10 @@ export default function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
         <CartDrawer />
+        <WhatsAppButton />
       </CartProvider>
     </BrowserRouter>
   )
