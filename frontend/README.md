@@ -1,21 +1,15 @@
-# React + Vite
+# ohoney storefront
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 + Vite + React Router. Plain CSS with design tokens (`src/styles/tokens.css`). See `../docs/DESIGN_SYSTEM.md`.
 
-Currently, two official plugins are available:
+- `npm run dev`: development server on :5173. It proxies `/api` to the backend on :8787.
+- `npm run build`: client build, SSR build of `src/entry-server.jsx`, then `scripts/prerender.js`. The prerender step writes static HTML for every route, plus `sitemap.xml` and `robots.txt`, into `dist/`.
+- `npm test`: unit tests for the cart (Node test runner).
+- `npm run lint`: ESLint.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-
-
-This canvas contains a ready-to-drop-in React homepage for **ohoney.in** built with Vite + React (no extra CSS frameworks required). Copy each file into your `ohoney/frontend/src/` folder (preserving the paths) and run `npm run dev`.
-
----
+| Where | What |
+|---|---|
+| `src/content/` | Business details, FAQ and policy text. The client edits these. |
+| `../shared/catalog.js` | Products and prices, shared with the API |
+| `src/seo/` | Per-page metadata (`<Seo>`), structured data, and the head tags written by the prerender step |
+| `public/og/` | Social preview images. Regenerate from `scripts/og-template.html`. |

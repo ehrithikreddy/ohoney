@@ -35,7 +35,8 @@ export default function Footer() {
         ))}
       </div>
       <div className="container site-footer__legal">
-        <p>© {new Date().getFullYear()} {site.legal.entityName ?? site.name}</p>
+        {/* The year is fixed at build time; the browser may disagree just after New Year. */}
+        <p suppressHydrationWarning>© {new Date().getFullYear()} {site.legal.entityName ?? site.name}</p>
         <p>FSSAI licence {site.legal.fssaiLicence ?? <Todo>FSSAI licence number</Todo>}</p>
       </div>
     </footer>

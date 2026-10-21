@@ -97,3 +97,50 @@ What is genuinely there: the route structure (Home, Product, About, Contact, Che
 6. **Business contact details.** The site currently uses a personal Gmail and mobile number. Confirm these are the intended public contacts.
 7. **Logo in vector format** (SVG/PDF) and confirmation that the ® mark is registered.
 8. **Accounts**: domain DNS, hosting, MongoDB Atlas (or another database), an email-sending account and, if chosen, Razorpay.
+
+---
+
+## 6. Status after this work (21 Oct 2026, branch `redesign/launch-ready`)
+
+| Area | Before | Now | Evidence |
+|---|---|---|---|
+| Order capture | 🔴 Discarded | ✅ Server-validated, re-priced, stored, emailed, idempotent | API tests; browser journey; order in MongoDB; 2 emails captured over SMTP |
+| Server validation and pricing | 🔴 None | ✅ Shared catalogue in paise; stale totals rejected | `backend/test/orders.test.js` |
+| Backend | 🔴 Empty | ✅ Express API, MongoDB store, health check, graceful shutdown | 46 tests including 4 on real MongoDB |
+| Payments | ⚪ | 🟡 COD live; Razorpay complete behind a switch | `payments.test.js` (fake client, real HMAC). No live keys yet. |
+| Contact and wholesale | 🔴 Discarded | ✅ Stored, emailed, honeypot, rate-limited | Tests and browser |
+| Product imagery | 🔴 Broken or wrong | 🟡 Honest colour illustrations; photos plug in | Needs client photography |
+| Content and claims | 🔴 Unverified claims | 🟡 Removed; checklist for the client | `CLIENT_HANDOFF.md` §6 |
+| Legal and policy pages | 🔴 None | 🟡 Four drafts with visible markers for missing details | Needs client details and approval |
+| Brand and visual design | 🟡 Generic | ✅ Logo-aligned design system | `DESIGN_SYSTEM.md`; screenshots |
+| Design tokens / CSS | 🔴 Inline styles | ✅ Tokens plus component CSS | `styles/tokens.css` |
+| Accessibility | 🔴 | ✅ axe: 0 violations on 33 states; keyboard purchase verified | `QA_REPORT.md` (no screen-reader pass yet) |
+| SEO | 🔴 | ✅ Prerendered per-page head, sitemap, robots, OG images, JSON-LD | `dist/` output |
+| Performance | 🟡 | ✅ Lighthouse lab: mobile 96–97, desktop 100 | `QA_REPORT.md` |
+| Security | 🟡 | ✅ Reviewed; 8 findings fixed; 0 known dependency vulnerabilities | `QA_REPORT.md` |
+| Cart persistence | 🔴 | ✅ | Reload test; unit tests |
+| Code quality | 🟡 13 lint errors | ✅ Lint clean; dead files removed | `npm run lint` |
+| Testing | ⚪ | ✅ 71 automated tests; CI workflow | `npm test` |
+| Deployment | ⚪ | 🟡 Documented; one-command build and start; clean-clone build verified | Not deployed: no accounts |
+| Monitoring | ⚪ | 🟡 Structured logs, health check, orders CLI | Alerts not set up |
+| Admin | ⚪ | ⏸ Email plus Atlas; admin screen deferred | — |
+
+### Revised completion estimate
+
+Same scope and weights as §4.
+
+| Area | Weight | Now | Contribution |
+|---|---:|---:|---:|
+| Order capture & payments | 20% | ~90% (COD complete; Razorpay untested against the real service) | ~18 |
+| Storefront pages & journeys | 15% | ~95% | ~14 |
+| Brand & visual design | 15% | ~80% (waiting on photography and a vector logo) | ~12 |
+| Content accuracy & policies | 15% | ~40% (structure done; the facts need the client) | ~6 |
+| Accessibility | 8% | ~85% (no screen-reader or zoom pass yet) | ~7 |
+| SEO | 7% | ~90% | ~6 |
+| Performance | 5% | ~90% (lab only) | ~4.5 |
+| Security & operations | 5% | ~75% (alerts not set up) | ~4 |
+| Testing | 5% | ~85% (no real-device or Razorpay test yet) | ~4 |
+| Deployment & handoff | 5% | ~60% (documented and verified locally; not deployed) | ~3 |
+| **Total** | | | **≈ 75–82%** |
+
+The remaining ~20% is almost entirely **client content, accounts and a staging deployment**. It isn't code.

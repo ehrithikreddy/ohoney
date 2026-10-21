@@ -54,6 +54,8 @@ a:hover { text-decoration-thickness: 2px; }
   border-radius: 2px;
 }
 .on-dark :focus-visible { outline-color: var(--c-focus-on-dark); }
+/* <main> receives focus after navigation so screen readers start there; it isn't a control, so no ring. */
+#main:focus { outline: none; }
 
 ::selection { background: var(--c-gold); color: var(--c-ink); }
 

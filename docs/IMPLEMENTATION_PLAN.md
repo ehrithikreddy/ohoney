@@ -40,27 +40,29 @@ Full tokens are in `DESIGN_SYSTEM.md`.
 
 ### Launch requirements
 
+Status as of 21 Oct 2026: ✅ done · 🟡 done in code, waiting on an external input · ⛔ blocked on the client
+
 | # | Item | Acceptance criteria | Stage |
 |---|---|---|---|
-| L1 | Repo hygiene | Root `.gitignore`; `backend/node_modules` and `.DS_Store` untracked; `.nvmrc` = 22; root README; lint passes | 1 |
-| L2 | Dependency security | `npm audit --omit=dev` shows 0 high/critical in both packages | 1 |
-| L3 | Shared catalogue & pricing | One `shared/` module defines products (integer paise), shipping rules and validation. Both frontend and API import it. Unit tests cover totals, the shipping threshold, unknown SKUs, unavailable SKUs and quantity limits. | 2 |
-| L4 | Design system | Tokens for colour, type, space, radius, shadow, container and motion in `tokens.css`. No inline style objects remain for layout or colour. Reduced motion is respected. Every text and UI pair meets WCAG AA contrast. | 2 |
-| L5 | Homepage | Value proposition and primary action visible without scrolling at 390×844 and 1440×900. Products are reachable by keyboard and render without JS animation. No unverified claims. | 2 |
-| L6 | Shop + product pages | `/shop` lists all products. `/shop/:slug` shows variety, origin, size, price, taste, how to use, storage and availability. Legacy `/product/p1–p4` redirect. Unavailable products can't be added. | 2–3 |
-| L7 | Cart | Persists across reloads (versioned `localStorage`, reconciled against the catalogue). Drawer is a modal dialog: focus moves in and is trapped, Escape closes it and focus returns. Quantity is limited to 1–10. Changes are announced to screen readers. | 3 |
-| L8 | Checkout (COD) | Single page with labelled fields, inline errors linked through `aria-describedby`, and an error summary that receives focus. Indian mobile and PIN validation. The submit button disables while sending. Success leads to `/order/confirmed` with the order number. Errors are specific and recoverable. | 3 |
-| L9 | Orders API | `POST /api/orders` validates every field on the server, re-prices from the catalogue and rejects unknown or unavailable SKUs. It returns `409` when the client's expected total differs from the server total, saves the order, is idempotent on `Idempotency-Key` (same key gives the same order; same key with a different body gives `409`), and notifies by email without failing the order if email fails. | 4 |
-| L10 | Enquiries API | `POST /api/enquiries` (contact or wholesale) with validation, a honeypot, rate limiting, storage and email notification. The Contact and Wholesale pages use it with success and error states. | 4 |
-| L11 | API hardening | Security headers, CORS allow-list, 20 kb body limit, per-IP rate limits on writes, no stack traces in responses, request IDs, logs without customer PII, and a `/api/health` endpoint that reports DB status. | 4 |
-| L12 | Razorpay (switched off) | Server-side Razorpay order creation, payment signature verification (HMAC-SHA256, timing-safe), and a webhook with signature verification and event-ID de-duplication. The amount is checked against the stored order. Tests use fake secrets. The UI option appears only when the switch is on. | 4 |
-| L13 | Content & policies | FAQ, Shipping, Returns, Privacy and Terms pages built from the stated rules. Each is marked **awaiting client approval** in the handoff. All footer links resolve. Contact details live in one config file. | 3 |
-| L14 | SEO | Each route is prerendered to static HTML with its own title, description, canonical and OG tags. `sitemap.xml` and `robots.txt` exist, plus an OG image. JSON-LD covers Organization and Product, with offers from real prices and no ratings. The 404 page and order confirmation are `noindex`. | 5 |
-| L15 | Accessibility | Skip link, landmarks, one `h1` per page, visible focus, 24 px minimum targets, and no failures from axe on any route at 390 and 1440 px. Keyboard-only purchase journey verified. | 5 |
-| L16 | Performance | JS under 100 KB gzip on first load; fonts self-hosted with critical faces preloaded; Lighthouse lab run recorded (mobile emulation). | 5 |
-| L17 | Tests | API tests (validation, pricing, idempotency, totals mismatch, unavailable SKU, enquiries, rate limit, Razorpay signatures and webhook de-duplication), a Mongo integration test, and a browser smoke run of the purchase journey. | 4–5 |
-| L18 | Deployment | `.env.example` files with names only, a production start script that serves the static site and API, a hosting guide, a rollback procedure and backup guidance. | 6 |
-| L19 | Handoff docs | `CLIENT_HANDOFF.md`, `QA_REPORT.md`, `DESIGN_SYSTEM.md` and a client content checklist. | 6 |
+| L1 | Repo hygiene | Root `.gitignore`; `backend/node_modules` and `.DS_Store` untracked; `.nvmrc` = 22; root README; lint passes | 1 · ✅ |
+| L2 | Dependency security | `npm audit --omit=dev` shows 0 high/critical in both packages | 1 · ✅ |
+| L3 | Shared catalogue & pricing | One `shared/` module defines products (integer paise), shipping rules and validation. Both frontend and API import it. Unit tests cover totals, the shipping threshold, unknown SKUs, unavailable SKUs and quantity limits. | 2 · ✅ |
+| L4 | Design system | Tokens for colour, type, space, radius, shadow, container and motion in `tokens.css`. No inline style objects remain for layout or colour. Reduced motion is respected. Every text and UI pair meets WCAG AA contrast. | 2 · ✅ |
+| L5 | Homepage | Value proposition and primary action visible without scrolling at 390×844 and 1440×900. Products are reachable by keyboard and render without JS animation. No unverified claims. | 2 · ✅ |
+| L6 | Shop + product pages | `/shop` lists all products. `/shop/:slug` shows variety, origin, size, price, taste, how to use, storage and availability. Legacy `/product/p1–p4` redirect. Unavailable products can't be added. | 2–3 · ✅ |
+| L7 | Cart | Persists across reloads (versioned `localStorage`, reconciled against the catalogue). Drawer is a modal dialog: focus moves in and is trapped, Escape closes it and focus returns. Quantity is limited to 1–10. Changes are announced to screen readers. | 3 · ✅ |
+| L8 | Checkout (COD) | Single page with labelled fields, inline errors linked through `aria-describedby`, and an error summary that receives focus. Indian mobile and PIN validation. The submit button disables while sending. Success leads to `/order/confirmed` with the order number. Errors are specific and recoverable. | 3 · ✅ |
+| L9 | Orders API | `POST /api/orders` validates every field on the server, re-prices from the catalogue and rejects unknown or unavailable SKUs. It returns `409` when the client's expected total differs from the server total, saves the order, is idempotent on `Idempotency-Key` (same key gives the same order; same key with a different body gives `409`), and notifies by email without failing the order if email fails. | 4 · ✅ |
+| L10 | Enquiries API | `POST /api/enquiries` (contact or wholesale) with validation, a honeypot, rate limiting, storage and email notification. The Contact and Wholesale pages use it with success and error states. | 4 · ✅ |
+| L11 | API hardening | Security headers, CORS allow-list, 20 kb body limit, per-IP rate limits on writes, no stack traces in responses, request IDs, logs without customer PII, and a `/api/health` endpoint that reports DB status. | 4 · ✅ |
+| L12 | Razorpay (switched off) | Server-side Razorpay order creation, payment signature verification (HMAC-SHA256, timing-safe), and a webhook with signature verification and event-ID de-duplication. The amount is checked against the stored order. Tests use fake secrets. The UI option appears only when the switch is on. | 4 · 🟡 needs Razorpay keys |
+| L13 | Content & policies | FAQ, Shipping, Returns, Privacy and Terms pages built from the stated rules. Each is marked **awaiting client approval** in the handoff. All footer links resolve. Contact details live in one config file. | 3 · 🟡 needs client details and approval |
+| L14 | SEO | Each route is prerendered to static HTML with its own title, description, canonical and OG tags. `sitemap.xml` and `robots.txt` exist, plus an OG image. JSON-LD covers Organization and Product, with offers from real prices and no ratings. The 404 page and order confirmation are `noindex`. | 5 · ✅ |
+| L15 | Accessibility | Skip link, landmarks, one `h1` per page, visible focus, 24 px minimum targets, and no failures from axe on any route at 390 and 1440 px. Keyboard-only purchase journey verified. | 5 · ✅ automated; screen-reader pass pending |
+| L16 | Performance | JS under 100 KB gzip on first load; fonts self-hosted with critical faces preloaded; Lighthouse lab run recorded (mobile emulation). | 5 · ✅ lab |
+| L17 | Tests | API tests (validation, pricing, idempotency, totals mismatch, unavailable SKU, enquiries, rate limit, Razorpay signatures and webhook de-duplication), a Mongo integration test, and a browser smoke run of the purchase journey. | 4–5 · ✅ |
+| L18 | Deployment | `.env.example` files with names only, a production start script that serves the static site and API, a hosting guide, a rollback procedure and backup guidance. | 6 · 🟡 not deployed |
+| L19 | Handoff docs | `CLIENT_HANDOFF.md`, `QA_REPORT.md`, `DESIGN_SYSTEM.md` and a client content checklist. | 6 · ✅ |
 
 ### Deferred (future improvements)
 - Razorpay live mode: needs the client's account, KYC and live keys. The code is ready.
@@ -72,10 +74,10 @@ Full tokens are in `DESIGN_SYSTEM.md`.
 - Telugu or Hindi localisation.
 - Real-user performance monitoring (CrUX or web-vitals beacon) after launch.
 
-## Stages
-1. **Audit & scope**: audit, plan, repo hygiene, dependency fixes. ✅ when committed.
-2. **Design system & representative pages**: tokens, layout shell, homepage, shop and product.
-3. **Remaining pages & journeys**: cart, checkout, story, contact, wholesale, FAQ, policies and states.
-4. **Integrations & reliability**: API, persistence, email, Razorpay behind the switch, tests.
-5. **Polish & verification**: prerender and SEO, accessibility and performance audits, cross-width review.
-6. **Handoff**: documentation, launch checklist, verdict.
+## Stages (all complete; commits on `redesign/launch-ready`)
+1. **Audit & scope**: audit, plan, repo hygiene, dependency fixes. `3618353`
+2. **Design system & representative pages**: tokens, layout shell, homepage, shop and product. `e212f8d`
+3. **Remaining pages & journeys**: cart, checkout, story, contact, wholesale, FAQ, policies and states. `e212f8d`, `e2c2b01`
+4. **Integrations & reliability**: API, persistence, email, Razorpay behind the switch, tests. `e2c2b01`
+5. **Polish & verification**: prerender and SEO, accessibility and performance audits, cross-width review, security fixes. `dd5cfad`
+6. **Handoff**: documentation, launch checklist, verdict. (final commit)
