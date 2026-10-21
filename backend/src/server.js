@@ -26,6 +26,7 @@ const app = createApp({ config, store, mailer, razorpay, logger })
 const server = app.listen(config.port, () => {
   logger.info('ohoney api listening', {
     port: config.port, store: store.kind, email: mailer.enabled, razorpay: Boolean(razorpay), static: config.serveStatic,
+    trustProxy: config.trustProxy, corsOrigins: config.corsOrigins,
   })
 })
 

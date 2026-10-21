@@ -1,0 +1,14 @@
+{
+  "name": "ohoney",
+  "private": true,
+  "description": "ohoney storefront (frontend/), order API (backend/) and shared catalogue (shared/)",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "scripts": {
+    "build": "npm ci --prefix frontend && npm run build --prefix frontend && npm ci --prefix backend --omit=dev",
+    "start": "npm start --prefix backend",
+    "test": "npm test --prefix shared && npm test --prefix frontend && npm test --prefix backend",
+    "lint": "npm run lint --prefix frontend"
+  }
+}

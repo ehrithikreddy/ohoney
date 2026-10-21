@@ -171,3 +171,27 @@ test('health, config and unknown routes', async () => {
   assert.equal(missing.body.error.code, 'NOT_FOUND')
   assert.equal(missing.headers['cache-control'], 'no-store')
 })
+
+test('the order form cannot be used to flood one inbox: customer copies stop after 3 a day', async () => {
+  const { app, store, mailer } = buildApp()
+  const numbers = []
+  for (let i = 0; i < 5; i++) numbers.push((await post(app, orderBody(undefined, { email: 'victim@example.com' }))).body.order.number)
+  const toVictim = mailer.sent.filter((m) => m.to === 'victim@example.com')
+  assert.equal(toVictim.length, 3)
+  assert.equal(mailer.sent.filter((m) => m.to === 'orders@ohoney.test').length, 5)
+  assert.equal((await store.orders.findByNumber(numbers[4])).notifications.customer, 'skipped')
+})
+
+test('failed notifications can be retried later', async () => {
+  const failing = buildApp({ mailerOptions: { fail: true } })
+  const res = await post(failing.app, orderBody())
+  const { createShopService } = await import('../src/services/shop.js')
+  const { createMemoryMailer } = await import('../src/services/mailer.js')
+  const mailer = createMemoryMailer()
+  const shop = createShopService({ store: failing.store, mailer, config: failing.config, logger: failing.logger })
+  const retried = await shop.retryNotifications(res.body.order.number)
+  assert.deepEqual(retried.notifications, { business: 'sent', customer: 'sent' })
+  assert.equal(mailer.sent.length, 2)
+  await shop.retryNotifications(res.body.order.number)
+  assert.equal(mailer.sent.length, 2, 'nothing re-sent once delivered')
+})

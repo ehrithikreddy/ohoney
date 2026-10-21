@@ -78,3 +78,18 @@ test('production trusts one proxy hop by default so rate limits see real client 
   assert.equal(c.trustProxy, 1)
   assert.equal(c.serveStatic, true)
 })
+
+test('TRUST_PROXY must be a hop count, not true/false', () => {
+  assert.throws(() => loadConfig({ TRUST_PROXY: 'true' }), /TRUST_PROXY/)
+  assert.equal(loadConfig({ TRUST_PROXY: '2' }).trustProxy, 2)
+})
+
+test('compresses text responses over 1 kB', async () => {
+  const dir = fakeDist()
+  fs.writeFileSync(path.join(dir, 'assets', 'index-big.js'), 'console.log("honey");\n'.repeat(400))
+  const { app } = buildApp({ env: { SERVE_STATIC: 'true', STATIC_DIR: dir } })
+  const big = await request(app).get('/assets/index-big.js').set('Accept-Encoding', 'gzip')
+  assert.equal(big.headers['content-encoding'], 'gzip')
+  const small = await request(app).get('/api/config').set('Accept-Encoding', 'gzip')
+  assert.equal(small.headers['content-encoding'], undefined)
+})

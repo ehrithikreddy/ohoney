@@ -54,6 +54,7 @@ orderSchema.index(
   { unique: true, partialFilterExpression: { 'payment.razorpayOrderId': { $type: 'string' } } },
 )
 orderSchema.index({ createdAt: -1 })
+orderSchema.index({ 'customer.email': 1, createdAt: -1 })
 
 const enquirySchema = new Schema(
   {
@@ -129,6 +130,16 @@ export async function createMongoStore(uri, { serverSelectionTimeoutMS = 5000 } 
           return rethrowDuplicate(err)
         }
       },
+      async attachRazorpayOrder(number, id) {
+        // Only the first writer wins, so concurrent retries can't swap the ID a customer is paying against.
+        const updated = await Order.findOneAndUpdate(
+          { number: String(number), 'payment.razorpayOrderId': { $exists: false } },
+          { $set: { 'payment.razorpayOrderId': String(id), 'payment.status': 'pending' } },
+          { new: true },
+        )
+        return plain(updated ?? (await Order.findOne({ number: String(number) })))
+      },
+      countByEmailSince: (email, since) => Order.countDocuments({ 'customer.email': String(email), createdAt: { $gte: since } }),
       async markPaid(number, payment) {
         // Conditional update: only the first caller flips the order to paid.
         const set = { 'payment.status': 'paid', 'payment.paidAt': new Date(), status: 'pending_confirmation' }

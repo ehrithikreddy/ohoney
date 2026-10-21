@@ -48,6 +48,19 @@ export function createMemoryStore() {
         order.updatedAt = new Date()
         return clone(order)
       },
+      async attachRazorpayOrder(number, id) {
+        const order = orders.get(number)
+        if (!order) return null
+        if (!order.payment.razorpayOrderId) {
+          order.payment.razorpayOrderId = id
+          order.payment.status = 'pending'
+          order.updatedAt = new Date()
+        }
+        return clone(order)
+      },
+      async countByEmailSince(email, since) {
+        return [...orders.values()].filter((o) => o.customer?.email === email && o.createdAt >= since).length
+      },
       async markPaid(number, payment) {
         const order = orders.get(number)
         if (!order) return { order: null, changed: false }

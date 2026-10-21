@@ -4,6 +4,7 @@ import path from 'node:path'
 import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
+import compression from 'compression'
 import { rateLimit } from 'express-rate-limit'
 import { findByLegacyId } from '@ohoney/shared/catalog.js'
 import { errorHandler, HttpError } from './http/errors.js'
@@ -21,6 +22,7 @@ export function createApp({ config, store, mailer, razorpay = null, logger }) {
 
   app.disable('x-powered-by')
   app.set('trust proxy', config.trustProxy)
+  app.use(compression())
 
   app.use((req, res, next) => {
     req.id = crypto.randomUUID()
@@ -78,7 +80,9 @@ export function createApp({ config, store, mailer, razorpay = null, logger }) {
   api.use(express.json({ limit: '20kb' }))
 
   const writeLimit = (limit) =>
-    rateLimit({ windowMs: 15 * 60 * 1000, limit, standardHeaders: 'draft-8', legacyHeaders: false, message: limitMessage })
+    // Only successful submissions count, so a customer fixing form errors isn't locked out
+    // (many Indian mobile users share an IP behind carrier NAT).
+    rateLimit({ windowMs: 15 * 60 * 1000, limit, skipFailedRequests: true, standardHeaders: 'draft-8', legacyHeaders: false, message: limitMessage })
 
   api.get('/health', async (req, res) => {
     const db = await store.ping()

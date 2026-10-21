@@ -8,9 +8,11 @@ export default function WhatsAppLink() {
   const { pathname } = useLocation()
   if (pathname.startsWith('/checkout')) return null
   return (
-    <a className="whatsapp-link" href={whatsappLink()} target="_blank" rel="noopener noreferrer">
-      <Icon name="whatsapp" size={28} />
-      <span className="visually-hidden">Chat with us on WhatsApp (opens in a new tab)</span>
-    </a>
+    <aside aria-label="Chat with us">
+      <a className="whatsapp-link" href={whatsappLink()} target="_blank" rel="noopener noreferrer">
+        <Icon name="whatsapp" size={28} />
+        <span className="visually-hidden">Chat with us on WhatsApp (opens in a new tab)</span>
+      </a>
+    </aside>
   )
 }

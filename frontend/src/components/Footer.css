@@ -23,6 +23,7 @@
 .site-footer__col li + li { margin-top: var(--space-1); }
 .site-footer .site-footer__col a {
   display: inline-block;
+  min-width: 1.5rem;
   padding-block: var(--space-1);
   color: var(--c-on-dark);
   text-decoration: none;

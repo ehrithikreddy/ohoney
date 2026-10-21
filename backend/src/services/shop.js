@@ -19,6 +19,10 @@ export const ORDER_NUMBER = /^OH-\d{6}-[0-9A-HJKMNP-TV-Z]{4}$/
 const ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ' // Crockford base32: no I, L, O or U
 const MAX_LINES = 20
 const EMAIL_TIMEOUT_MS = 15_000
+// The order form must not become a way to mail strangers: after this many orders to
+// one address in a day, the customer copy is skipped (the business is still told).
+const CUSTOMER_EMAILS_PER_DAY = 3
+const DAY_MS = 24 * 60 * 60 * 1000
 
 /** e.g. OH-261021-7KQ2: the date in India, then 4 random characters. */
 export function newOrderNumber(now = new Date()) {
@@ -68,11 +72,18 @@ export function createShopService({ store, mailer, razorpay = null, config, logg
     }
   }
 
+  async function customerEmailAllowed(order) {
+    // A flagged (likely bot) order must not be used to send mail to a third party.
+    if (order.flags?.honeypot) return false
+    const recent = await store.orders.countByEmailSince(order.customer.email, new Date(Date.now() - DAY_MS))
+    return recent <= CUSTOMER_EMAILS_PER_DAY
+  }
+
   async function notifyOrder(order, requestId) {
+    const allowed = await customerEmailAllowed(order)
     const [business, customer] = await Promise.all([
       sendSafely('order-business', order.number, { to: config.mail.notify, ...businessOrderEmail(order) }),
-      // A flagged (likely bot) order must not be used to send mail to a third party.
-      order.flags?.honeypot
+      !allowed
         ? 'skipped'
         : sendSafely('order-customer', order.number, {
             to: order.customer.email,
@@ -98,7 +109,8 @@ export function createShopService({ store, mailer, razorpay = null, config, logg
     if (order.payment.razorpayOrderId) return order
     try {
       const rp = await razorpay.createOrder({ amount: order.total, receipt: order.number, notes: { orderNumber: order.number } })
-      return await store.orders.update(order.number, { 'payment.razorpayOrderId': rp.id, 'payment.status': 'pending' })
+      // If a concurrent retry attached one first, its ID wins and this Razorpay order is simply never paid.
+      return await store.orders.attachRazorpayOrder(order.number, rp.id)
     } catch (err) {
       logger.error('razorpay order creation failed', { requestId, order: order.number, err })
       await store.orders.update(order.number, { 'payment.status': 'failed', 'payment.lastError': 'order_creation_failed' })
@@ -199,17 +211,21 @@ export function createShopService({ store, mailer, razorpay = null, config, logg
     const number = body?.orderNumber
     if (typeof number !== 'string' || !ORDER_NUMBER.test(number)) throw badRequest('BAD_REQUEST', 'Invalid order number.')
     const order = await store.orders.findByNumber(number)
-    if (!order || order.payment.method !== 'razorpay' || !order.payment.razorpayOrderId) throw notFound('Order not found.')
-
-    const valid = verifyPaymentSignature({
-      razorpayOrderId: order.payment.razorpayOrderId,
-      paymentId: body.razorpay_payment_id,
-      signature: body.razorpay_signature,
-      keySecret: config.razorpay.keySecret,
-    })
+    const valid =
+      order?.payment.method === 'razorpay' &&
+      verifyPaymentSignature({
+        razorpayOrderId: order.payment.razorpayOrderId,
+        paymentId: body.razorpay_payment_id,
+        signature: body.razorpay_signature,
+        keySecret: config.razorpay.keySecret,
+      })
+    // Same response whether the order is missing or the signature is wrong, so order numbers can't be probed.
     if (!valid) {
       logger.warn('payment signature invalid', { requestId, order: number })
       throw badRequest('SIGNATURE_INVALID', 'We couldn’t verify that payment. If money has left your account, contact us with your order number.')
+    }
+    if (order.payment.status === 'amount_mismatch') {
+      throw conflict('PAYMENT_REVIEW', 'We need to check this payment by hand. We’ll contact you shortly about your order.')
     }
     let { order: paid, changed } = await store.orders.markPaid(number, { razorpayPaymentId: body.razorpay_payment_id, via: 'checkout' })
     if (changed) paid = await notifyOrder(paid, requestId)
@@ -222,7 +238,10 @@ export function createShopService({ store, mailer, razorpay = null, config, logg
       logger.warn('webhook signature invalid', { requestId })
       throw badRequest('SIGNATURE_INVALID', 'Invalid signature.')
     }
-    if (eventId && (await store.webhookEvents.has(eventId))) return { duplicate: true }
+    // The event-ID header isn't covered by the signature, so the de-duplication key also
+    // includes a hash of the signed body: a replayed body can't suppress a different event.
+    const dedupeKey = `${eventId || 'none'}:${crypto.createHash('sha256').update(rawBody).digest('hex').slice(0, 32)}`
+    if (await store.webhookEvents.has(dedupeKey)) return { duplicate: true }
 
     let event
     try {
@@ -245,7 +264,9 @@ export function createShopService({ store, mailer, razorpay = null, config, logg
         const currency = payment?.currency ?? event.payload?.order?.entity?.currency
         if (amount !== order.total || currency !== 'INR') {
           logger.error('payment amount mismatch', { requestId, order: order.number, expected: order.total, received: amount, currency })
-          await store.orders.update(order.number, { 'payment.status': 'amount_mismatch', 'payment.lastError': `received ${amount} ${currency}` })
+          if (order.payment.status !== 'paid') {
+            await store.orders.update(order.number, { 'payment.status': 'amount_mismatch', 'payment.lastError': `received ${amount} ${currency}` })
+          }
           break
         }
         const { order: paid, changed } = await store.orders.markPaid(order.number, { razorpayPaymentId: payment?.id, via: 'webhook' })
@@ -261,7 +282,7 @@ export function createShopService({ store, mailer, razorpay = null, config, logg
         logger.info('webhook ignored', { requestId, type: event?.event })
     }
     // Recorded only after successful processing, so a failure lets Razorpay retry.
-    if (eventId) await store.webhookEvents.record(eventId, event?.event)
+    await store.webhookEvents.record(dedupeKey, event?.event)
     return { processed: true }
   }
 
@@ -275,5 +296,23 @@ export function createShopService({ store, mailer, razorpay = null, config, logg
     return { ok: true }
   }
 
-  return { createOrder, verifyPayment, handleWebhook, createEnquiry }
+  /** Re-sends whichever order emails failed earlier (used by scripts/orders.js). */
+  async function retryNotifications(number) {
+    const order = await store.orders.findByNumber(number)
+    if (!order) throw notFound('Order not found.')
+    const patch = {}
+    if (order.notifications?.business === 'failed') {
+      patch['notifications.business'] = await sendSafely('order-business', number, { to: config.mail.notify, ...businessOrderEmail(order) })
+    }
+    if (order.notifications?.customer === 'failed') {
+      patch['notifications.customer'] = await sendSafely('order-customer', number, {
+        to: order.customer.email,
+        replyTo: config.mail.notify,
+        ...customerOrderEmail(order, { siteUrl: config.siteUrl }),
+      })
+    }
+    return Object.keys(patch).length ? store.orders.update(number, patch) : order
+  }
+
+  return { createOrder, verifyPayment, handleWebhook, createEnquiry, retryNotifications }
 }

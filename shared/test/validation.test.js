@@ -69,3 +69,14 @@ test('wholesale enquiries need business, phone and city', () => {
 test('rejects unknown enquiry types', () => {
   assert.ok(validateEnquiry({ type: 'admin', name: 'A', email: 'a@example.com', message: 'x'.repeat(20) }).errors.type)
 })
+
+test('email addresses cannot smuggle display names or extra recipients', () => {
+  const ok = (email) => !validateEnquiry({ type: 'contact', name: 'Ab', email, message: 'hello there friend' }).errors.email
+  for (const good of ['a@b.co', 'first.last@sub.example.in', 'x@xn--p1ai.xn--p1ai']) assert.ok(ok(good), good)
+  for (const bad of ['x<victim@a.com>', 'a,b@c.com', '"a"@b.co', 'a@b', 'a@.com', 'a@b..com', 'a@' + '.'.repeat(19000) + '@']) assert.ok(!ok(bad), bad.slice(0, 30))
+})
+
+test('contact enquiries drop wholesale-only fields', () => {
+  const { values } = validateEnquiry({ type: 'contact', name: 'Ab', email: 'a@b.co', message: 'hello there friend', business: 'x'.repeat(20000), city: 'y', volume: 'z' })
+  assert.deepEqual([values.business, values.city, values.volume], ['', '', ''])
+})

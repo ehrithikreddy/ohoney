@@ -18,7 +18,7 @@ export function loadConfig(env = process.env) {
     mongoUri: env.MONGODB_URI || '',
     corsOrigins: list(env.CORS_ORIGINS),
     // Number of reverse proxies in front of the app, so rate limits see the real client IP.
-    trustProxy: env.TRUST_PROXY !== undefined ? Number(env.TRUST_PROXY) : production ? 1 : 0,
+    trustProxy: env.TRUST_PROXY !== undefined && env.TRUST_PROXY !== '' ? Number(env.TRUST_PROXY) : production ? 1 : 0,
     serveStatic: bool(env.SERVE_STATIC, production),
     staticDir: path.resolve(env.STATIC_DIR || path.join(here, '../../frontend/dist')),
     mail: {
@@ -29,6 +29,8 @@ export function loadConfig(env = process.env) {
       pass: env.SMTP_PASS || '',
       from: env.MAIL_FROM || '',
       notify: env.ORDER_NOTIFY_EMAIL || '',
+      // Refuse to send over an unencrypted connection if the server doesn't offer STARTTLS.
+      requireTLS: bool(env.SMTP_REQUIRE_TLS, production),
     },
     razorpay: {
       enabled: bool(env.PAYMENTS_RAZORPAY_ENABLED),
@@ -41,6 +43,9 @@ export function loadConfig(env = process.env) {
   }
 
   const problems = []
+  if (!Number.isInteger(config.trustProxy) || config.trustProxy < 0) {
+    problems.push('TRUST_PROXY must be a whole number of proxy hops (0 if nothing sits in front of the app, usually 1 on Render, Railway or Fly).')
+  }
   if (production && !config.mongoUri) problems.push('MONGODB_URI is required in production (orders would otherwise live only in memory).')
   const mailConfigured = config.mail.host && config.mail.from && config.mail.notify
   if (production && !mailConfigured && !config.allowNoEmail) {

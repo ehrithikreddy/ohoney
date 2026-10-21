@@ -19,6 +19,7 @@ export function createMailer(mail, logger) {
     host: mail.host,
     port: mail.port,
     secure: mail.secure,
+    requireTLS: !mail.secure && mail.requireTLS,
     auth: mail.user ? { user: mail.user, pass: mail.pass } : undefined,
     connectionTimeout: 10_000,
     greetingTimeout: 10_000,

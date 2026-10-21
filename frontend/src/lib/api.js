@@ -43,8 +43,10 @@ export async function postJSON(path, body, { idempotencyKey, timeoutMs = 15000 }
   )
 }
 
+// randomUUID needs a secure context (HTTPS); getRandomValues works everywhere.
 export const newIdempotencyKey = () =>
-  globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+  globalThis.crypto.randomUUID?.() ??
+  Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('')
 
 /** GET that resolves to null on any failure, for optional data such as feature flags. */
 export async function getJSONOrNull(path) {

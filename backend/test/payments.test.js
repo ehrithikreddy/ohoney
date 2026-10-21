@@ -160,3 +160,51 @@ test('payment endpoints do not exist while Razorpay is switched off', async () =
   assert.equal((await request(app).post('/api/payments/razorpay/verify').send({})).status, 404)
   assert.equal((await webhook(app, captured('order_x', 100))).status, 404)
 })
+
+test('concurrent retries after a Razorpay outage settle on one Razorpay order ID', async () => {
+  const { app, store } = buildApp({ razorpay: fakeRazorpay({ failTimes: 1 }) })
+  const key = newKey()
+  assert.equal((await placeOnlineOrder(app, key)).status, 502)
+  const retries = await Promise.all([placeOnlineOrder(app, key), placeOnlineOrder(app, key), placeOnlineOrder(app, key)])
+  const ids = new Set(retries.map((r) => r.body.payment.razorpayOrderId))
+  assert.equal(ids.size, 1)
+  const [stored] = await store.orders.list()
+  assert.equal(stored.payment.razorpayOrderId, [...ids][0])
+})
+
+test('a mismatched amount never downgrades a paid order, and a flagged order cannot be verified as paid', async () => {
+  const { app, store } = buildApp({ razorpay: fakeRazorpay() })
+  const { body } = await placeOnlineOrder(app)
+  await webhook(app, captured(body.payment.razorpayOrderId, body.order.total))
+  await webhook(app, captured(body.payment.razorpayOrderId, 1, 'pay_other'))
+  assert.equal((await store.orders.findByNumber(body.order.number)).payment.status, 'paid')
+
+  const second = (await placeOnlineOrder(app)).body
+  await webhook(app, captured(second.payment.razorpayOrderId, 1))
+  const res = await request(app).post('/api/payments/razorpay/verify').send({
+    orderNumber: second.order.number,
+    razorpay_payment_id: 'pay_z',
+    razorpay_signature: sign(RZP.keySecret, `${second.payment.razorpayOrderId}|pay_z`),
+  })
+  assert.equal(res.status, 409)
+  assert.equal(res.body.error.code, 'PAYMENT_REVIEW')
+})
+
+test('verify gives the same answer for a missing order and a bad signature', async () => {
+  const { app } = buildApp({ razorpay: fakeRazorpay() })
+  const { body } = await placeOnlineOrder(app)
+  const missing = await request(app).post('/api/payments/razorpay/verify').send({ orderNumber: 'OH-000101-AAAA', razorpay_payment_id: 'p', razorpay_signature: 'ab' })
+  const wrong = await request(app).post('/api/payments/razorpay/verify').send({ orderNumber: body.order.number, razorpay_payment_id: 'p', razorpay_signature: 'ab' })
+  assert.equal(missing.status, wrong.status)
+  assert.deepEqual(missing.body, wrong.body)
+})
+
+test('a replayed signed body with a forged event ID cannot suppress a different real event', async () => {
+  const { app, store } = buildApp({ razorpay: fakeRazorpay() })
+  const { body } = await placeOnlineOrder(app)
+  const failed = { event: 'payment.failed', payload: { payment: { entity: { id: 'pay_f', order_id: body.payment.razorpayOrderId, error_code: 'X' } } } }
+  await webhook(app, failed, { eventId: 'evt_real_capture' }) // attacker replays an old body under the next event's ID
+  const real = await webhook(app, captured(body.payment.razorpayOrderId, body.order.total), { eventId: 'evt_real_capture' })
+  assert.equal(real.body.processed, true)
+  assert.equal((await store.orders.findByNumber(body.order.number)).payment.status, 'paid')
+})

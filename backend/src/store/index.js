@@ -6,7 +6,9 @@
 // orders.findByNumber(number)         -> order | null
 // orders.findByRazorpayOrderId(id)    -> order | null
 // orders.update(number, patch)        -> order | null   (patch keys may be dotted paths)
+// orders.attachRazorpayOrder(number, id) -> order       (only sets it if none is set yet; returns the stored one)
 // orders.markPaid(number, payment)    -> { order, changed }  (changed=false if it was already paid)
+// orders.countByEmailSince(email, date) -> number
 // orders.list({ since, limit })       -> order[] newest first
 // enquiries.insert(enquiry)           -> enquiry
 // webhookEvents.has(id) / record(id, type)

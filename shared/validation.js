@@ -11,7 +11,11 @@ export const INDIAN_STATES = [
   'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
 ]
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+// Unambiguous (linear-time) pattern that also rejects characters an email client could
+// read as a display name or a second address: < > ( ) , ; : " [ ] \
+const EMAIL = /^[^\s@<>(),;:"[\]\\]+@[^\s@<>(),;:"[\]\\.]+(?:\.[^\s@<>(),;:"[\]\\.]+)*\.[^\s@<>(),;:"[\]\\.]{2,}$/
+// Length is checked before the pattern runs.
+const isEmail = (s) => s.length <= 254 && EMAIL.test(s)
 const PINCODE = /^[1-9][0-9]{5}$/
 
 const text = (v) => (typeof v === 'string' ? v.trim().replace(/\s+/g, ' ') : '')
@@ -45,7 +49,7 @@ export function validateCheckout(input = {}) {
   }
 
   check(errors, 'name', lengthBetween(values.name, 2, 80), 'Enter your full name.')
-  check(errors, 'email', EMAIL.test(values.email) && values.email.length <= 254, 'Enter an email address, like name@example.com.')
+  check(errors, 'email', isEmail(values.email), 'Enter an email address, like name@example.com.')
   check(errors, 'phone', normaliseIndianMobile(values.phone) !== null, 'Enter a 10-digit Indian mobile number.')
   check(errors, 'address1', lengthBetween(values.address1, 5, 160), 'Enter your house number and street.')
   check(errors, 'address2', values.address2.length <= 160, 'Keep this line under 160 characters.')
@@ -75,7 +79,7 @@ export function validateEnquiry(input = {}) {
 
   if (!type) errors.type = 'Unknown enquiry type.'
   check(errors, 'name', lengthBetween(values.name, 2, 80), 'Enter your name.')
-  check(errors, 'email', EMAIL.test(values.email) && values.email.length <= 254, 'Enter an email address, like name@example.com.')
+  check(errors, 'email', isEmail(values.email), 'Enter an email address, like name@example.com.')
 
   if (type === 'wholesale') {
     check(errors, 'business', lengthBetween(values.business, 2, 120), 'Enter your business name.')
@@ -84,6 +88,8 @@ export function validateEnquiry(input = {}) {
     check(errors, 'volume', values.volume.length <= 80, 'Keep this under 80 characters.')
     check(errors, 'message', values.message.length <= 2000, 'Keep your message under 2,000 characters.')
   } else {
+    // Wholesale-only fields are dropped so they can't carry unchecked text.
+    values.business = values.city = values.volume = ''
     check(errors, 'phone', values.phone === '' || normaliseIndianMobile(values.phone) !== null, 'Enter a 10-digit Indian mobile number, or leave this blank.')
     check(errors, 'message', lengthBetween(values.message, 10, 2000), 'Write a message of at least 10 characters.')
   }
