@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Builds
+dist/
+dist-ssr/
+frontend/dist-ssr/
+
+# Environment (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Logs & OS / editor files
+*.log
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Local tooling output
+.playwright-mcp/
+coverage/
