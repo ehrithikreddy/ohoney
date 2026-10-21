@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { formatINR } from '@ohoney/shared/pricing.js'
 import { INDIAN_STATES, validateCheckout } from '@ohoney/shared/validation.js'
 import { useCart } from '../context/cart-context.js'
-import { postJSON, newIdempotencyKey } from '../lib/api.js'
+import { getJSONOrNull, postJSON, newIdempotencyKey } from '../lib/api.js'
+import { payWithRazorpay } from '../lib/razorpay.js'
 import { useForm } from '../lib/useForm.js'
 import { site } from '../content/site.js'
 import Seo from '../seo/Seo.jsx'
@@ -26,13 +27,22 @@ export default function CheckoutPage() {
   const [honeypot, setHoneypot] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [problem, setProblem] = useState(null)
+  const [paymentMethod, setPaymentMethod] = useState('cod')
+  const [onlinePayment, setOnlinePayment] = useState(false)
   const summaryRef = useRef(null)
   const problemRef = useRef(null)
   const idempotencyKey = useRef(null)
 
   // A retry of the same order reuses its key so the server can't create it twice;
   // any edit to the form or cart makes it a new order.
-  useEffect(() => { idempotencyKey.current = null }, [values, cart.lines])
+  useEffect(() => { idempotencyKey.current = null }, [values, cart.lines, paymentMethod])
+
+  // Online payment is offered only when the API has Razorpay switched on.
+  useEffect(() => {
+    let active = true
+    getJSONOrNull('/api/config').then((c) => { if (active) setOnlinePayment(Boolean(c?.payments?.razorpay?.enabled)) })
+    return () => { active = false }
+  }, [])
 
   if (!cart.loaded) {
     return (
@@ -74,12 +84,16 @@ export default function CheckoutPage() {
     idempotencyKey.current ??= newIdempotencyKey()
     setSubmitting(true)
     try {
-      const { order } = await postJSON(
+      let { order, payment } = await postJSON(
         '/api/orders',
-        { ...clean, items: cart.lines, paymentMethod: 'cod', expectedTotal: totals.total, website: honeypot },
+        { ...clean, items: cart.lines, paymentMethod, expectedTotal: totals.total, website: honeypot },
         { idempotencyKey: idempotencyKey.current },
       )
-      try { sessionStorage.setItem(LAST_ORDER_KEY, JSON.stringify(order)) } catch { /* shown from memory below */ }
+      if (payment?.provider === 'razorpay') {
+        const result = await payWithRazorpay({ payment, order })
+        ;({ order } = await postJSON('/api/payments/razorpay/verify', { orderNumber: order.number, ...result }))
+      }
+      try { sessionStorage.setItem(LAST_ORDER_KEY, JSON.stringify(order)) } catch { /* passed in navigation state too */ }
       cart.clear()
       navigate('/order/confirmed', { replace: true, state: { order } })
     } catch (err) {
@@ -155,13 +169,24 @@ export default function CheckoutPage() {
 
           <fieldset>
             <legend><h2>Payment</h2></legend>
-            <label className="pay-option">
-              <input type="radio" name="paymentMethod" value="cod" checked readOnly />
-              <span>
-                <strong>Cash on delivery</strong>
-                <span className="muted">Pay {formatINR(totals.total)} to the courier when your order arrives.</span>
-              </span>
-            </label>
+            <div className="pay-options">
+              <label className="pay-option">
+                <input type="radio" name="paymentMethod" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} />
+                <span>
+                  <strong>Cash on delivery</strong>
+                  <span className="muted">Pay {formatINR(totals.total)} to the courier when your order arrives.</span>
+                </span>
+              </label>
+              {onlinePayment && (
+                <label className="pay-option">
+                  <input type="radio" name="paymentMethod" value="razorpay" checked={paymentMethod === 'razorpay'} onChange={() => setPaymentMethod('razorpay')} />
+                  <span>
+                    <strong>Pay online</strong>
+                    <span className="muted">UPI, cards or net banking, through Razorpay.</span>
+                  </span>
+                </label>
+              )}
+            </div>
           </fieldset>
 
           <Honeypot value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
@@ -175,7 +200,7 @@ export default function CheckoutPage() {
 
           <div className="checkout__submit">
             <button type="submit" className="btn btn--primary btn--block" disabled={submitting} aria-busy={submitting}>
-              {submitting ? 'Placing your order…' : `Place order (${formatINR(totals.total)})`}
+              {submitting ? 'Placing your order…' : paymentMethod === 'razorpay' ? `Pay ${formatINR(totals.total)}` : `Place order (${formatINR(totals.total)})`}
             </button>
             <p className="muted">
               By placing your order you agree to our <Link to="/terms">terms of sale</Link>. See how we use your details in our <Link to="/privacy">privacy policy</Link>.

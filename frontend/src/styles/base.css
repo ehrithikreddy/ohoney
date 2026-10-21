@@ -28,7 +28,8 @@ img, svg, picture { display: block; max-width: 100%; }
 input, button, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 p, h1, h2, h3, h4 { overflow-wrap: break-word; }
-ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
+/* :where() keeps this reset at zero specificity so component classes can add padding. */
+:where(ul[role='list'], ol[role='list']) { list-style: none; padding: 0; }
 
 h1, h2, h3, .display {
   font-family: var(--font-display);

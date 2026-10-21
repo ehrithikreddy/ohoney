@@ -45,3 +45,13 @@ export async function postJSON(path, body, { idempotencyKey, timeoutMs = 15000 }
 
 export const newIdempotencyKey = () =>
   globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+
+/** GET that resolves to null on any failure, for optional data such as feature flags. */
+export async function getJSONOrNull(path) {
+  try {
+    const res = await fetch(`${BASE}${path}`, { signal: AbortSignal.timeout(8000) })
+    return res.ok ? await res.json() : null
+  } catch {
+    return null
+  }
+}
