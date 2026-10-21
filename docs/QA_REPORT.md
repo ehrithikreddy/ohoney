@@ -22,9 +22,9 @@ This report covers only checks that were actually run. Anything not run is liste
 | Suite | Command | Result |
 |---|---|---|
 | Shared catalogue, pricing and validation | `npm test --prefix shared` | **20 passed** |
-| Cart persistence logic | `npm test --prefix frontend` | **5 passed** |
-| API (orders, enquiries, payments, static serving, config) | `npm test --prefix backend` | **42 passed**, plus 4 skipped without a database |
-| API against a real MongoDB | `MONGODB_TEST_URI=… npm test --prefix backend` | **46 passed** (the 4 integration tests included) |
+| Cart persistence and WhatsApp fallback | `npm test --prefix frontend` | **7 passed** |
+| API (orders, enquiries, payments, static serving, config, serverless adapter) | `npm test --prefix backend` | **44 passed**, plus 4 skipped without a database |
+| API against a real MongoDB | `MONGODB_TEST_URI=… npm test --prefix backend` | **46 passed** (run before the serverless adapter was added; the adapter's 2 tests don't touch the database) |
 | Lint | `npm run lint` | Clean (it failed with 13 errors before) |
 | Clean-clone build | `git clone` → `npm run build` → `npm test` | Passed |
 | CI | `.github/workflows/ci.yml` | Written, but **not yet run on GitHub**; the branch hasn't been pushed |
@@ -145,3 +145,9 @@ Dependencies: `npm audit` reports **0 vulnerabilities** in frontend and backend.
 | Load and concurrency beyond the idempotency tests | Not load-tested. The traffic assumption is a small shop, tens of orders a day. |
 | Screen readers, zoom, high contrast | Not done (see above). |
 | Real-user performance (CrUX or web-vitals) | Not available before launch. |
+
+## Addendum, 22 Oct 2026: Vercel deployment
+
+- `www.ohoney.in` is hosted on Vercel and deploys from `main`. Added `frontend/vercel.json` (routing, headers, redirects, the API as a Vercel Function) and a serverless adapter (`backend/src/serverless.js`) with 2 tests.
+- **WhatsApp fallback.** If the order API is unreachable or not yet configured, checkout offers "Send this order on WhatsApp" with the order pre-filled. This was verified in Chromium against a static build with no API: the message is correct, focus moves to the notice, and the cart is kept.
+- The Vercel-specific behaviour (directory routing, function bundling, headers) can't be run locally without the Vercel CLI. It was checked on the deployed preview and production; see the deployment notes in the final report.

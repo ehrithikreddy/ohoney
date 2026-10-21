@@ -28,6 +28,8 @@ npm run dev --prefix frontend    # site on :5173, proxies /api to :8787
 
 Environment variables are described in `backend/.env.example` and `frontend/.env.example`.
 
+**Deployment:** pushing `main` deploys to www.ohoney.in on Vercel (`frontend/vercel.json`: static pages plus the API as a Vercel Function). See [Client handoff §5](docs/CLIENT_HANDOFF.md#5-deploying).
+
 ## Documentation
 
 - [Client handoff](docs/CLIENT_HANDOFF.md): deployment, content editing, operations, costs, launch checklist

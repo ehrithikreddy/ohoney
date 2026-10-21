@@ -4,7 +4,8 @@
 
 export const site = {
   name: 'ohoney',
-  url: (import.meta.env.VITE_SITE_URL || 'https://ohoney.in').replace(/\/$/, ''),
+  // The live domain redirects ohoney.in to www.ohoney.in, so www is canonical.
+  url: (import.meta.env.VITE_SITE_URL || 'https://www.ohoney.in').replace(/\/$/, ''),
   tagline: 'Raw honey from three corners of South India',
   description:
     'Raw honey from the Nilgiris, Mysore and the Western Ghats, packed in small batches and delivered across India. Pay on delivery.',

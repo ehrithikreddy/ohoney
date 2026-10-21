@@ -61,3 +61,4 @@
   .checkout__summary { grid-column: 1; position: static; }
   .checkout__form { grid-row: 2; }
 }
+.checkout__problem { display: grid; gap: var(--space-3); justify-items: start; }

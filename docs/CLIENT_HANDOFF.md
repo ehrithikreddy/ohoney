@@ -1,18 +1,18 @@
 # ohoney — Client Handoff
 
-**Prepared:** 21 Oct 2026 · **Code:** branch `redesign/launch-ready` (not yet merged or deployed)
+**Prepared:** 21 Oct 2026 · **Updated:** 22 Oct 2026, merged to `main` and deployed to Vercel
 
 ## Verdict
 
-**Ready for client review. Ready for staging once the hosting accounts below exist. Not ready for production.**
+**Live on www.ohoney.in (deployed 22 Oct 2026 at the owner's request), but not yet complete for production.**
 
-The shop works end to end: browse, cart, cash-on-delivery checkout, order saved, business and customer emailed, contact and wholesale enquiries. It is tested, accessible (automated checks clean) and fast in lab tests.
-
-Production is blocked by **client inputs, not code**:
-- confirmation of the claims and facts below;
-- legal and business details, including the FSSAI licence;
-- real product photography;
-- hosting, database and email accounts.
+- **Works now:** the new design, every page, the cart, and checkout. Until the database and email are configured, checkout sends orders by **WhatsApp** (§5).
+- **Activates once MongoDB and SMTP variables are added in Vercel:** online ordering, with orders saved and emailed. No code changes are needed.
+- **Still outstanding:**
+  - confirmation of the claims and facts (§6);
+  - legal details, including the FSSAI licence, which currently show as yellow "[To be provided]" markers on the live site;
+  - real photos;
+  - a Vercel Pro plan for commercial use.
 
 ---
 
@@ -81,33 +81,43 @@ These are names only. **Real values go in the hosting dashboard and are never co
 
 ## 5. Deploying
 
-The recommended setup is a single web service plus MongoDB Atlas. Render is shown here; Railway, Fly.io or a VPS work the same way.
+### Current host: Vercel (ohoney.in)
+`www.ohoney.in` is served by **Vercel**, which deploys automatically when `main` is pushed to GitHub. The apex `ohoney.in` redirects to `www`. Other branches get preview deployments. `frontend/vercel.json` configures everything else:
+- install and build, including the shared catalogue and the API's dependencies;
+- `/api/*` runs the Express API as a Vercel Function (`frontend/api/index.js`), in the Mumbai region `bom1`;
+- security headers (CSP), immutable caching for assets, and 301 redirects from old `/product/p1`-style links.
 
-1. **Database.** Create a MongoDB Atlas project.
-   - Production: use a **Flex** cluster, which includes automatic daily backups. The free M0 tier has no backups, so use it for staging only.
-   - Create a database user with a long random password.
-   - Allow network access from the host.
-   - Copy the connection string into `MONGODB_URI`.
-2. **Email.** Use the domain's own mailbox SMTP (Zoho Mail, Google Workspace) or a sending service such as Brevo, whose free plan is listed at 300 emails a day. Add the provider's **SPF, DKIM and DMARC** DNS records for `ohoney.in`, or order emails will land in spam.
-3. **Web service.** Create a new Node web service from the GitHub repository.
-   - Root directory: the repo root.
-   - Build command: `npm run build`. Start command: `npm start`.
-   - Health check path: `/api/health`.
-   - Add the environment variables from §4. Remember `VITE_SITE_URL` must be present at build time.
-4. **Domain.** Add `ohoney.in` and `www.ohoney.in` as custom domains. Point DNS as the host instructs; HTTPS is automatic.
-5. **Smoke test.** Do this after every deploy:
-   - `/api/health` returns `{"status":"ok"}`;
-   - place one real COD order to yourself and confirm both emails arrive;
-   - send one contact message;
-   - view a product page's link preview on WhatsApp.
+The Vercel project settings that must stay as they are:
+- **Root Directory:** `frontend`.
+- **"Include files outside the root directory in the Build Step":** enabled. The build needs `../shared` and `../backend`.
 
-**Staging first.** Deploy a staging service with `VITE_NOINDEX=true` and a free M0 database for client review before production.
+**Turning on online ordering (one-time setup):**
+1. **MongoDB Atlas.** Create a cluster in **Mumbai (ap-south-1)**: Flex for production, because it includes backups. Create a database user with a long random password. Because Vercel's servers have no fixed IP addresses, allow network access from anywhere (`0.0.0.0/0`). Alternatively, add MongoDB Atlas from the Vercel Marketplace, which creates the connection variable for you.
+2. **Email.** Use SMTP details from the domain mailbox or a sending service, and add its SPF, DKIM and DMARC records in GoDaddy DNS.
+3. **Vercel → Project → Settings → Environment Variables (Production).** Add `MONGODB_URI`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` and `ORDER_NOTIFY_EMAIL`. `SITE_URL` is optional; it defaults to `https://www.ohoney.in`.
+4. **Redeploy:** Deployments → latest → Redeploy.
+5. **Check:**
+   - `https://www.ohoney.in/api/health` returns `{"status":"ok"}`;
+   - place a real COD order to yourself and confirm both emails arrive.
 
-**Rollback.**
-- Code: in the host's dashboard, choose "Rollback" to the previous deploy. Alternatively, `git revert` the change and push.
-- Database: there are no migrations to undo. Indexes are created additively at start-up.
-- Restoring data: Atlas → cluster → Backup → restore a snapshot.
-- Run a test restore once before launch.
+**Until step 3 is done**, the site is fully browsable, but `/api/*` answers "unavailable". Checkout then offers **"Send this order on WhatsApp"**, with the items, total and address pre-filled, so orders still reach the business. The contact form shows the email address instead.
+
+**The Vercel plan.** Vercel's Hobby (free) plan is for **non-commercial, personal use only**, and a shop is commercial use. Move the project to **Pro**, about US$20 per user per month (check vercel.com/pricing).
+
+**Rollback.** Vercel → Deployments → choose the previous production deployment → **Promote to Production**. This is instant. Alternatively, `git revert` the change and push.
+
+**Serverless limitations:**
+- Rate limits are counted per function instance, so they are weaker than on a single server.
+- The first request after a quiet period connects to MongoDB, which adds a cold start of about a second.
+
+### Alternative: one Node server (Render, Railway, Fly.io or a VPS)
+- Build command: `npm run build`. Start command: `npm start`. Health check: `/api/health`.
+- Set the variables from §4 (`NODE_ENV=production` and `VITE_SITE_URL` at build time).
+- This option gives the strongest rate limiting and has no cold starts. Atlas backups and rollback work as above.
+
+**Staging.** Vercel preview deployments, made automatically for every branch, can serve as staging. Set `VITE_NOINDEX=true` for the Preview environment so search engines skip them.
+
+**Restoring data.** Atlas → cluster → Backup → restore a snapshot. Run a test restore once before relying on it.
 
 ## 6. Content the client must confirm
 
@@ -208,12 +218,13 @@ These are approximate, gathered in October 2026 from public sources that don't a
 
 | Item | Approx. cost | Notes |
 |---|---|---|
-| Web hosting (e.g. Render Starter) | ~US$7 / month | An always-on instance. Free tiers sleep, so they're unsuitable for a shop. |
+| Web hosting: **Vercel Pro** (current host) | ~US$20 / user / month | Hobby (free) is limited to non-commercial use |
+| *or* a single Node host (e.g. Render Starter) | ~US$7 / month | An always-on instance. Free tiers sleep. |
 | MongoDB Atlas Flex | ~US$8–30 / month | Includes automatic daily backups. The free M0 tier is for staging only. |
 | Email sending | Free to low | Brevo's free plan is listed at 300 emails/day; a domain mailbox costs per user |
 | Domain `ohoney.in` | Annual renewal | Depends on the registrar |
 | Razorpay (only when switched on) | ~2% + 18% GST on the fee, per domestic payment | No setup fee under standard pricing, per Razorpay's own published material |
-| **Typical total at launch** | **~US$15–40 / month** plus domain and email | Excludes development time |
+| **Typical total at launch** | **~US$30–50 / month on Vercel Pro**, or ~US$15–40 on a single Node host, plus domain and email | Excludes development time |
 
 ## 12. Online payment (Razorpay), when wanted
 
@@ -254,9 +265,11 @@ Status key: ✅ complete · ⛔ blocked on client · ⏸ deferred
 | Approve the policy wording, ideally with legal review | ⛔ |
 | Product photography and vector logo | ⛔ (the site works without them, using illustrations) |
 | Public business email and phone confirmed | ⛔ |
-| Hosting, MongoDB Atlas, SMTP, domain DNS (SPF, DKIM, DMARC) | ⛔ |
-| Staging deploy and client review | ⛔ (needs the accounts) |
-| Real-device testing on iOS Safari and Android Chrome | ⛔ (needs staging) |
+| Site deployed to www.ohoney.in (Vercel) | ✅ see §5 (ordering falls back to WhatsApp until the database and email variables are set) |
+| MongoDB Atlas + SMTP variables in Vercel; email DNS (SPF, DKIM, DMARC) | ⛔ |
+| Vercel plan upgraded to Pro (commercial use) | ⛔ |
+| Client review of the live site | ⛔ |
+| Real-device testing on iOS Safari and Android Chrome | ⛔ (can now be done on www.ohoney.in) |
 | Uptime and log alerts; Search Console | ⏸ (recommended at launch) |
 | Razorpay online payment | ⏸ (code ready; needs the client's account and approval) |
 | Admin screen, inventory counts, discount codes, reviews, CMS | ⏸ (future) |

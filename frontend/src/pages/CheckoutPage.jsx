@@ -6,7 +6,8 @@ import { useCart } from '../context/cart-context.js'
 import { getJSONOrNull, postJSON, newIdempotencyKey } from '../lib/api.js'
 import { payWithRazorpay } from '../lib/razorpay.js'
 import { useForm } from '../lib/useForm.js'
-import { site } from '../content/site.js'
+import { site, whatsappLink } from '../content/site.js'
+import { isServiceUnavailable, whatsappOrderText } from '../lib/whatsapp-order.js'
 import Seo from '../seo/Seo.jsx'
 import Field, { ErrorSummary, Honeypot } from '../components/Field.jsx'
 import ProductArt from '../components/ProductArt.jsx'
@@ -27,6 +28,7 @@ export default function CheckoutPage() {
   const [honeypot, setHoneypot] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [problem, setProblem] = useState(null)
+  const [whatsappOrder, setWhatsappOrder] = useState(null)
   const [paymentMethod, setPaymentMethod] = useState('cod')
   const [onlinePayment, setOnlinePayment] = useState(false)
   const summaryRef = useRef(null)
@@ -71,6 +73,7 @@ export default function CheckoutPage() {
   async function onSubmit(e) {
     e.preventDefault()
     setProblem(null)
+    setWhatsappOrder(null)
     const clean = form.check()
     if (!clean) {
       requestAnimationFrame(() => summaryRef.current?.focus())
@@ -103,7 +106,12 @@ export default function CheckoutPage() {
         requestAnimationFrame(() => summaryRef.current?.focus())
         return
       }
-      setProblem(err.message)
+      if (isServiceUnavailable(err)) {
+        setProblem('We couldn’t place your order online just now. Send it to us on WhatsApp instead and we’ll confirm it there.')
+        setWhatsappOrder(whatsappOrderText(cart.items, totals, clean))
+      } else {
+        setProblem(err.message)
+      }
       requestAnimationFrame(() => problemRef.current?.focus())
     }
   }
@@ -192,9 +200,15 @@ export default function CheckoutPage() {
           <Honeypot value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
 
           {problem && (
-            <div className="notice notice--error" role="alert" tabIndex={-1} ref={problemRef}>
+            <div className="notice notice--error checkout__problem" role="alert" tabIndex={-1} ref={problemRef}>
               <p>{problem}</p>
-              <p className="muted">If this keeps happening, message us on WhatsApp at {site.phoneDisplay}.</p>
+              {whatsappOrder ? (
+                <a className="btn btn--primary" href={whatsappLink(whatsappOrder)} target="_blank" rel="noopener noreferrer">
+                  Send this order on WhatsApp<span className="visually-hidden"> (opens in a new tab)</span>
+                </a>
+              ) : (
+                <p className="muted">If this keeps happening, message us on WhatsApp at {site.phoneDisplay}.</p>
+              )}
             </div>
           )}
 

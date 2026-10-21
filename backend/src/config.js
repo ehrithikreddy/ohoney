@@ -14,7 +14,7 @@ export function loadConfig(env = process.env) {
   const config = {
     production,
     port: Number(env.PORT) || 8787,
-    siteUrl: (env.SITE_URL || 'http://localhost:5173').replace(/\/$/, ''),
+    siteUrl: (env.SITE_URL || (production ? 'https://www.ohoney.in' : 'http://localhost:5173')).replace(/\/$/, ''),
     mongoUri: env.MONGODB_URI || '',
     corsOrigins: list(env.CORS_ORIGINS),
     // Number of reverse proxies in front of the app, so rate limits see the real client IP.
