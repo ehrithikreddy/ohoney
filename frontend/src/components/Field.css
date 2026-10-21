@@ -1,0 +1,50 @@
+.field { display: grid; gap: var(--space-1); align-content: start; }
+.field label { font-weight: 600; }
+.field__optional { font-weight: 400; color: var(--c-ink-soft); }
+.field__hint { font-size: var(--step--1); color: var(--c-ink-soft); }
+.field__error { font-size: var(--step--1); font-weight: 600; color: var(--c-danger); }
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 3rem;
+  padding: var(--space-2) var(--space-3);
+  background: var(--c-white);
+  border: 1.5px solid var(--c-line-strong);
+  border-radius: var(--radius-sm);
+  line-height: 1.4;
+}
+.field textarea { min-height: 7.5rem; resize: vertical; }
+.field select {
+  appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%232b1b0c' stroke-width='1.75'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+}
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: 3px solid var(--c-gold);
+  outline-offset: 0;
+  border-color: var(--c-ink);
+}
+.field--error input,
+.field--error select,
+.field--error textarea { border-color: var(--c-danger); border-width: 2px; }
+
+.error-summary h2 { font-family: var(--font-text); font-variation-settings: normal; font-size: var(--step-1); font-weight: 600; margin-bottom: var(--space-2); }
+.error-summary ul { padding-left: 1.1em; }
+.error-summary a { color: var(--c-danger); font-weight: 600; }
+
+.honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5) var(--space-4); }
+.form-grid .span-2 { grid-column: 1 / -1; }
+@media (max-width: 36rem) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+fieldset { border: 0; padding: 0; min-width: 0; }
+legend { padding: 0; }

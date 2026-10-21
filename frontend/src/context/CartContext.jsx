@@ -1,46 +1,60 @@
-import React, { createContext, useContext, useState } from 'react'
-import toast from 'react-hot-toast'
-
-const CartContext = createContext()
+import { useCallback, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { findBySku, MAX_QTY_PER_ITEM } from '@ohoney/shared/catalog.js'
+import { priceCart } from '@ohoney/shared/pricing.js'
+import { addLine, removeLine, setLineQty } from '../lib/cart.js'
+import { cartStore, hydration } from '../lib/cart-store.js'
+import { CartContext } from './cart-context.js'
 
 export function CartProvider({ children }) {
-  const [items, setItems] = useState([])
-  const [open, setOpen] = useState(false)
+  const lines = useSyncExternalStore(cartStore.subscribe, cartStore.getSnapshot, cartStore.getServerSnapshot)
+  const loaded = useSyncExternalStore(hydration.subscribe, hydration.getSnapshot, hydration.getServerSnapshot)
+  const [isOpen, setOpen] = useState(false)
+  const [announcement, setAnnouncement] = useState('')
+  const announceCount = useRef(0)
 
-  const addItem = (product) => {
-    setItems(prev => {
-      const exists = prev.find(i => i.id === product.id)
-      if (exists) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i)
-      return [...prev, { ...product, qty: 1 }]
-    })
-    toast.success(`${product.title} added to cart! 🍯`)
+  const announce = useCallback((message) => {
+    // Alternating an invisible suffix makes a repeated message announce again.
+    announceCount.current += 1
+    setAnnouncement(`${message}${'​'.repeat(announceCount.current % 2)}`)
+  }, [])
+
+  const add = useCallback((sku, qty = 1) => {
+    const product = findBySku(sku)
+    if (!product?.available) return
+    cartStore.update((prev) => addLine(prev, sku, qty))
+    announce(`Added ${qty > 1 ? `${qty} × ` : ''}${product.name} to your cart.`)
     setOpen(true)
-  }
+  }, [announce])
 
-  const removeItem = (id) => {
-    setItems(prev => prev.filter(i => i.id !== id))
-    toast('Item removed from cart', { icon: '🗑️' })
-  }
+  const setQty = useCallback((sku, qty) => cartStore.update((prev) => setLineQty(prev, sku, qty)), [])
 
-  const updateQty = (id, delta) => {
-    setItems(prev =>
-      prev.map(i => i.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i)
-    )
-  }
+  const remove = useCallback((sku) => {
+    cartStore.update((prev) => removeLine(prev, sku))
+    announce(`Removed ${findBySku(sku)?.name ?? 'item'} from your cart.`)
+  }, [announce])
 
-  const clearCart = () => {
-    setItems([])
-    toast('Cart cleared', { icon: '🧹' })
-  }
+  const clear = useCallback(() => cartStore.update(() => []), [])
 
-  const total = items.reduce((sum, i) => sum + (parseInt(i.price.replace('₹', '')) * i.qty), 0)
-  const count = items.reduce((sum, i) => sum + i.qty, 0)
+  const value = useMemo(() => {
+    const items = lines.map((l) => ({ ...l, product: findBySku(l.sku) }))
+    return {
+      lines,
+      items,
+      totals: priceCart(lines),
+      count: lines.reduce((n, l) => n + l.qty, 0),
+      hasUnavailable: items.some((i) => !i.product.available),
+      maxQty: MAX_QTY_PER_ITEM,
+      loaded,
+      isOpen,
+      open: () => setOpen(true),
+      close: () => setOpen(false),
+      add,
+      setQty,
+      remove,
+      clear,
+      announcement,
+    }
+  }, [lines, loaded, isOpen, add, setQty, remove, clear, announcement])
 
-  return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQty, clearCart, total, count, open, setOpen }}>
-      {children}
-    </CartContext.Provider>
-  )
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }
-
-export const useCart = () => useContext(CartContext)

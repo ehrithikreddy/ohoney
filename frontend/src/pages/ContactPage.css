@@ -1,0 +1,22 @@
+.contact {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: var(--space-8);
+  align-items: start;
+}
+.contact__ways { display: grid; gap: var(--space-6); }
+.contact__list > div { padding-block: var(--space-4); border-top: 1px solid var(--c-line); }
+.contact__list dt { font-size: var(--step--1); color: var(--c-ink-soft); }
+.contact__list dd { font-size: var(--step-1); }
+.contact__list dd a { display: inline-flex; align-items: center; gap: var(--space-2); }
+.contact__hours { display: block; font-size: var(--step-0); }
+.contact__form h2 { font-size: var(--step-2); margin-bottom: var(--space-5); }
+
+.enquiry-form { display: grid; gap: var(--space-5); justify-items: start; }
+.enquiry-form .form-grid { width: 100%; }
+.enquiry-sent { display: grid; gap: var(--space-2); justify-items: start; }
+.enquiry-sent svg { display: inline; vertical-align: -4px; color: var(--c-success); }
+
+@media (max-width: 52rem) {
+  .contact { grid-template-columns: 1fr; gap: var(--space-7); }
+}

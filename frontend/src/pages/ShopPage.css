@@ -1,0 +1,14 @@
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15.5rem), 1fr));
+  gap: var(--space-7) var(--space-5);
+}
+.shop-card { display: flex; flex-direction: column; gap: var(--space-4); }
+.shop-card__art { display: block; }
+.shop-card__body { flex: 1; display: grid; gap: var(--space-1); align-content: start; }
+.shop-card__name { font-size: var(--step-2); }
+.shop-card__name a { color: inherit; text-decoration: none; }
+.shop-card__name a:hover { text-decoration: underline; text-decoration-color: var(--c-gold); text-decoration-thickness: 2px; text-underline-offset: 0.15em; }
+.shop-card__art:hover + .shop-card__body .shop-card__name a { text-decoration: underline; text-decoration-color: var(--c-gold); }
+.shop-card__price { margin-top: var(--space-2); font-size: var(--step-1); }
+.shop-card__price strong { font-weight: 600; }

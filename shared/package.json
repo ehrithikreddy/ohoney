@@ -1,0 +1,9 @@
+{
+  "name": "@ohoney/shared",
+  "private": true,
+  "type": "module",
+  "description": "Catalogue, pricing and validation shared by the storefront and the API",
+  "scripts": {
+    "test": "node --test 'test/**/*.test.js'"
+  }
+}

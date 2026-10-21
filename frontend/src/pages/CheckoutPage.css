@@ -1,0 +1,60 @@
+.checkout { padding-block: var(--space-7) var(--section); }
+.checkout__title { margin-bottom: var(--space-6); }
+
+.checkout__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
+  gap: var(--space-7) var(--space-8);
+  align-items: start;
+}
+.checkout__summary {
+  grid-column: 2;
+  grid-row: 1;
+  position: sticky;
+  top: calc(var(--header-h) + var(--space-5));
+  padding: var(--space-5);
+  background: var(--c-paper-deep);
+  border-radius: var(--radius-md);
+}
+.checkout__summary h2 { font-size: var(--step-2); margin-bottom: var(--space-4); }
+.checkout__form { grid-column: 1; grid-row: 1; display: grid; gap: var(--space-7); }
+.checkout__form fieldset h2 { font-size: var(--step-2); margin-bottom: var(--space-4); }
+
+.summary-lines li {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--c-line);
+}
+.summary-lines li > div:nth-child(2) { display: grid; font-size: var(--step--1); }
+.summary-lines__name { font-weight: 600; font-size: var(--step-0); }
+.summary-lines__price { font-variant-numeric: tabular-nums; }
+
+.summary-totals { margin-block: var(--space-4) var(--space-3); }
+.summary-totals > div { display: flex; justify-content: space-between; padding-block: var(--space-1); }
+.summary-totals dd { font-variant-numeric: tabular-nums; font-weight: 600; }
+.summary-totals > .summary-totals__total { margin-top: var(--space-2); padding-top: var(--space-3); border-top: 1.5px solid var(--c-ink); font-size: var(--step-1); }
+
+.pay-option {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4);
+  border: 2px solid var(--c-ink);
+  border-radius: var(--radius-sm);
+  background: var(--c-white);
+}
+.pay-option input { width: 1.25rem; height: 1.25rem; margin-top: 0.15rem; accent-color: var(--c-ink); }
+.pay-option > span { display: grid; gap: var(--space-1); }
+
+.checkout__submit { display: grid; gap: var(--space-3); }
+.checkout__submit .btn { min-height: 3.5rem; font-size: var(--step-1); }
+.checkout__submit p { font-size: var(--step--1); }
+
+@media (max-width: 56rem) {
+  .checkout__grid { grid-template-columns: 1fr; }
+  .checkout__summary { grid-column: 1; position: static; }
+  .checkout__form { grid-row: 2; }
+}

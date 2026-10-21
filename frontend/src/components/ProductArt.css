@@ -1,0 +1,27 @@
+.product-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(60% 55% at 50% 48%, rgb(251 183 21 / 0.2), transparent 70%),
+    var(--c-propolis);
+}
+
+.product-art--card { aspect-ratio: 4 / 5; }
+.product-art--hero { aspect-ratio: 1 / 1; }
+.product-art--thumb { aspect-ratio: 1 / 1; border-radius: var(--radius-sm); }
+.product-art--photo { object-fit: cover; background: var(--c-paper-deep); }
+
+.product-art__vessels {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6%;
+  height: 80%;
+}
+.product-art__vessels .vessel { height: 100%; width: auto; }
+.product-art__vessels--3 { height: 56%; }
+.product-art--thumb .product-art__vessels { height: 78%; }

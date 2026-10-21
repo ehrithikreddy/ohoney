@@ -1,0 +1,89 @@
+/* ohoney design tokens. See docs/DESIGN_SYSTEM.md for usage and contrast checks. */
+
+:root {
+  /* Colour: drawn from the logo (gold #FBB715, chocolate #42290A) */
+  --c-ink: #2b1b0c;            /* body text, headings, primary button text */
+  --c-ink-soft: #6b5338;       /* secondary text (6.7:1 on paper) */
+  --c-paper: #fbf7ee;          /* page background, warm ivory */
+  --c-paper-deep: #f3ead6;     /* raised/tinted sections */
+  --c-white: #ffffff;          /* form fields */
+  --c-gold: #fbb715;           /* logo gold: primary actions, highlights. Never text on paper */
+  --c-gold-hover: #f2a900;
+  --c-amber: #8c4f07;          /* links and small accents on light grounds (6.1:1) */
+  --c-propolis: #22150a;       /* dark "backlit" panels and footer */
+  --c-propolis-raised: #2f1e0f;
+  --c-on-dark: #fbf7ee;
+  --c-on-dark-soft: #cdb79a;   /* secondary text on propolis (9.2:1) */
+  --c-line: #e7dcc3;           /* hairlines, decorative dividers */
+  --c-line-strong: #8f785a;    /* form borders, meets 3:1 non-text contrast */
+  --c-danger: #a3261a;
+  --c-danger-bg: #fbeae6;
+  --c-success: #2e6a3a;
+  --c-success-bg: #e7f1e6;
+  --c-todo-bg: #fff0b8;        /* "client to provide" markers */
+  --c-focus: #2b1b0c;
+  --c-focus-on-dark: #fbb715;
+
+  /* Typography */
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-text: 'Anek Latin Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --display-soft: 'SOFT' 100;  /* Fraunces' rounded, viscous terminals */
+
+  /* Scale follows the classic typographic series 14·17·21·24·36·48·72 */
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3125rem;
+  --step-2: 1.5rem;
+  --step-3: clamp(1.875rem, 1.4rem + 1.6vw, 2.25rem);
+  --step-4: clamp(2.25rem, 1.6rem + 2.4vw, 3rem);
+  --step-5: clamp(2.6rem, 1.5rem + 4.4vw, 4.5rem);
+
+  --leading-tight: 1.08;
+  --leading-snug: 1.25;
+  --leading-body: 1.6;
+  --measure: 66ch;
+
+  /* Space: 4px base */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --section: clamp(4rem, 2.5rem + 6vw, 7.5rem);
+
+  /* Layout */
+  --container: 76rem;
+  --container-narrow: 46rem;
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+  --header-h: 4.5rem;
+
+  /* Shape: crisp for UI, generous only for the honey vessels */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  /* Depth: one shadow for overlays, one glow for backlit honey */
+  --shadow-overlay: 0 24px 60px -12px rgb(34 21 10 / 0.35);
+  --glow-honey: 0 0 80px 10px rgb(251 183 21 / 0.18);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.6, 0, 0.3, 1);
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+  --dur-pour: 1400ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+    --dur-pour: 0ms;
+  }
+}

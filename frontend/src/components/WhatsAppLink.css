@@ -1,0 +1,16 @@
+.whatsapp-link {
+  position: fixed;
+  right: max(var(--space-4), env(safe-area-inset-right));
+  bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  background: #1f7a4d; /* WhatsApp green darkened for 5.4:1 icon contrast */
+  color: #fff;
+  box-shadow: 0 6px 18px -6px rgb(34 21 10 / 0.45);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.whatsapp-link:hover { transform: translateY(-2px); }

@@ -1,0 +1,32 @@
+.vessel {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.vessel__glass {
+  fill: rgb(255 248 230 / 0.04);
+  stroke: rgb(255 244 220 / 0.42);
+  stroke-width: 1.4;
+}
+
+.vessel__lip {
+  stroke: rgb(255 244 220 / 0.55);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.vessel__shine { fill: rgb(255 255 255 / 0.16); }
+
+.vessel--pour .vessel__honey {
+  transform-box: fill-box;
+  animation: vessel-pour var(--dur-pour) var(--ease-in-out) var(--pour-delay, 0ms) both;
+}
+
+@keyframes vessel-pour {
+  from { transform: translateY(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vessel--pour .vessel__honey { animation: none; }
+}
