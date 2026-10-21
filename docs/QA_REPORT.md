@@ -27,7 +27,7 @@ This report covers only checks that were actually run. Anything not run is liste
 | API against a real MongoDB | `MONGODB_TEST_URI=… npm test --prefix backend` | **46 passed** (run before the serverless adapter was added; the adapter's 2 tests don't touch the database) |
 | Lint | `npm run lint` | Clean (it failed with 13 errors before) |
 | Clean-clone build | `git clone` → `npm run build` → `npm test` | Passed |
-| CI | `.github/workflows/ci.yml` | Written, but **not yet run on GitHub**; the branch hasn't been pushed |
+| CI | `docs/github-ci-workflow.yml` | Written but **not enabled**: the deploy token lacks GitHub's `workflow` scope, so it can't be placed at `.github/workflows/ci.yml` yet |
 
 ### What the API tests prove
 - The server re-prices every order from the catalogue. Client-sent prices are ignored, and a tampered `expectedTotal` returns 409 and creates no order.
@@ -120,7 +120,7 @@ The run was on localhost against the production-mode server with gzip. Mobile us
 
 An independent review of the API, shared validation and checkout client was carried out as a code-reading review; it didn't execute the code. It found **no way to get goods without paying, manipulate prices, forge payments, inject NoSQL, traverse paths or leak PII in logs**.
 
-It did raise 8 findings: 3 medium, 1 low-medium and 4 low. **All are fixed and covered by tests** (commit `dd5cfad`):
+It did raise 8 findings: 3 medium, 1 low-medium and 4 low. **All are fixed and covered by tests** (commit `c7441c8`):
 - order-form mail abuse, now capped per recipient;
 - the Razorpay order-ID race, now a conditional write;
 - `TRUST_PROXY` parsing, now strict and logged;

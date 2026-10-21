@@ -120,7 +120,7 @@ What is genuinely there: the route structure (Home, Product, About, Contact, Che
 | Security | 🟡 | ✅ Reviewed; 8 findings fixed; 0 known dependency vulnerabilities | `QA_REPORT.md` |
 | Cart persistence | 🔴 | ✅ | Reload test; unit tests |
 | Code quality | 🟡 13 lint errors | ✅ Lint clean; dead files removed | `npm run lint` |
-| Testing | ⚪ | ✅ 71 automated tests; CI workflow | `npm test` |
+| Testing | ⚪ | ✅ 71 automated tests; CI workflow ready to enable | `npm test` |
 | Deployment | ⚪ | 🟡 Documented; one-command build and start; clean-clone build verified | Not deployed: no accounts |
 | Monitoring | ⚪ | 🟡 Structured logs, health check, orders CLI | Alerts not set up |
 | Admin | ⚪ | ⏸ Email plus Atlas; admin screen deferred | — |

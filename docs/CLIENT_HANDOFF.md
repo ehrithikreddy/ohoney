@@ -204,7 +204,7 @@ A content management system (CMS) for non-developers is a possible later additio
 
 ## 10. Maintenance
 
-- **Monthly:** run `npm audit` in `frontend/` and `backend/`, update dependencies, and re-run `npm test`. CI (`.github/workflows/ci.yml`) runs the tests on every push.
+- **Monthly:** run `npm audit` in `frontend/` and `backend/`, update dependencies, and re-run `npm test`. To run the tests automatically on every push, enable CI: move `docs/github-ci-workflow.yml` to `.github/workflows/ci.yml`. Do it in GitHub's web editor, or with a token that has the `workflow` scope.
 - **Recommended monitoring.** None of these are set up yet:
   - a free uptime check on `https://ohoney.in/api/health`;
   - a log alert on the words `email failed` and `unhandled error`;
@@ -258,7 +258,8 @@ Status key: ✅ complete · ⛔ blocked on client · ⏸ deferred
 | WCAG 2.2 AA automated checks (axe) clean; contrast verified | ✅ |
 | Prerendered SEO: titles, canonicals, OG images, sitemap, robots, structured data | ✅ |
 | Security review findings fixed; dependencies at 0 known vulnerabilities | ✅ |
-| Automated tests (71) and CI workflow | ✅ (CI not yet run on GitHub) |
+| Automated tests (71) | ✅ |
+| CI on GitHub | ⏸ (workflow ready in `docs/github-ci-workflow.yml`; needs the `workflow` token scope or the web editor) |
 | Deployment, rollback and backup documentation | ✅ |
 | Confirm the claims and facts in §6 | ⛔ |
 | Legal details, including the FSSAI licence number | ⛔ |

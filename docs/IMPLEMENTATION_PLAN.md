@@ -79,5 +79,5 @@ Status as of 21 Oct 2026: ✅ done · 🟡 done in code, waiting on an external 
 2. **Design system & representative pages**: tokens, layout shell, homepage, shop and product. `e212f8d`
 3. **Remaining pages & journeys**: cart, checkout, story, contact, wholesale, FAQ, policies and states. `e212f8d`, `e2c2b01`
 4. **Integrations & reliability**: API, persistence, email, Razorpay behind the switch, tests. `e2c2b01`
-5. **Polish & verification**: prerender and SEO, accessibility and performance audits, cross-width review, security fixes. `dd5cfad`
+5. **Polish & verification**: prerender and SEO, accessibility and performance audits, cross-width review, security fixes. `c7441c8`
 6. **Handoff**: documentation, launch checklist, verdict. (final commit)

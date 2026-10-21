@@ -1,0 +1,30 @@
+# GitHub Actions CI. To enable it, move this file to .github/workflows/ci.yml. Either add it in
+# GitHub's web editor, or push it with a token that has the "workflow" scope (GitHub blocks
+# tokens without that scope from creating workflow files).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:8
+        ports: ['27017:27017']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: npm ci --prefix frontend
+      - run: npm ci --prefix backend
+      - run: npm run lint
+      - run: npm test
+        env:
+          MONGODB_TEST_URI: mongodb://127.0.0.1:27017/ohoney_ci
+      - run: npm run build --prefix frontend
